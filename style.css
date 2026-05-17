@@ -1,51 +1,294 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-body { background: #000; color: #fff; padding: 15px; overflow-x: hidden; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+}
 
-.section { width: 100%; max-width: 500px; margin: 0 auto; padding-bottom: 20px; }
-.hidden { display: none !important; }
+body { 
+    background: #000; 
+    color: #fff; 
+    padding: 15px; 
+    overflow-x: hidden; 
+}
 
-/* Dashboard */
-.logo-container { text-align: center; margin: 40px 0; }
-.main-logo { max-width: 180px; height: auto; }
-.menu-grid { display: flex; flex-direction: column; gap: 15px; }
-.menu-btn { background: #111; color: #fff; border: 1px solid #222; padding: 20px; border-radius: 12px; font-size: 16px; font-weight: bold; text-align: left; cursor: pointer; transition: 0.2s; }
-.menu-btn:active { background: #ff1e00; }
+.section { 
+    width: 100%; 
+    max-width: 500px; 
+    margin: 0 auto; 
+    padding-bottom: 20px; 
+}
 
-/* Testata Fissa */
-.sticky-header { position: fixed; top: 0; left: 0; right: 0; background: #000; z-index: 1000; padding: 15px; border-bottom: 1px solid #111; }
-.back-btn { color: #ff1e00; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 14px; display: inline-block; }
+.hidden { 
+    display: none !important; 
+}
 
-/* 5 Pulsanti in linea rimpiccioliti */
-.db-selector-grid { display: flex; gap: 4px; margin: 5px 0 10px 0; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
-.btn-db { flex: 1; background: #111; color: #aaa; border: 1px solid #222; padding: 10px 2px; border-radius: 6px; font-weight: bold; font-size: 8px; text-transform: uppercase; white-space: nowrap; min-width: 68px; cursor: pointer; }
-.btn-db.active { background: #ff1e00 !important; border-color: #ff1e00 !important; color: #fff !important; }
+/* Dashboard Home */
+.logo-container { 
+    text-align: center; 
+    margin: 40px 0; 
+}
 
-/* Ricerca */
-.search-container { position: relative; width: 100%; }
-.search-container input { width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; }
-.clear-search { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 18px; cursor: pointer; }
+.main-logo { 
+    max-width: 180px; 
+    height: auto; 
+}
 
-/* Lista Prodotti e Categorie */
-#gear-list { margin-top: 155px; padding-bottom: 300px !important; list-style: none; }
-.category-title { background: #111; color: #ff1e00; font-weight: bold; padding: 12px 10px; margin-top: 20px; border-left: 4px solid #ff1e00; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; display: block; }
-.gear-item { padding: 15px 10px; border-bottom: 1px solid #111; color: #ccc; background: #000; cursor: pointer; display: block; -webkit-tap-highlight-color: transparent; user-select: none; }
-.gear-item-active { background-color: #ff1e00 !important; color: white !important; }
-.selected { border-left: 3px solid #ff1e00; background: #050505; }
+.menu-grid { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
 
-/* Footer Fisso */
-.selection-footer { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 2px solid #ff1e00; padding: 15px; z-index: 1000; max-height: 220px; overflow-y: auto; }
-.footer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.footer-header h3 { font-size: 14px; }
-.btn-share { background: #ff1e00; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
-#added-items-summary { display: flex; flex-wrap: wrap; gap: 6px; max-height: 100px; overflow-y: auto; font-size: 12px; color: #aaa; }
-.summary-tag { background: #222; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 6px; border: 1px solid #333; }
-.btn-qta { color: #ff1e00; font-weight: bold; padding: 0 4px; cursor: pointer; font-size: 14px; }
-.btn-clear { background: transparent; color: #ff1e00; border: 1px solid #ff1e00; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+.menu-btn { 
+    background: #111; 
+    color: #fff; 
+    border: 1px solid #222; 
+    padding: 20px; 
+    border-radius: 12px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    text-align: left; 
+    cursor: pointer; 
+    transition: 0.2s; 
+}
 
-/* Toast */
-.toast { position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 30, 0, 0.95); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: none; transition: opacity 0.2s; }
+.menu-btn:active { 
+    background: #ff1e00; 
+}
 
-/* Analisi e Mappa Luci (Fotografo View) */
+/* TESTATA FISSA IN ALTO (Z-index alto per stare sopra la lista) */
+.sticky-header { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    background: #000; 
+    z-index: 2000; /* Alzato per blindare la visibilità */
+    padding: 15px; 
+    border-bottom: 1px solid #111; 
+}
+
+.back-btn { 
+    color: #ff1e00; 
+    font-weight: bold; 
+    cursor: pointer; 
+    font-size: 14px; 
+    display: inline-block; 
+}
+
+/* Pulsante Passa a PRO */
+.btn-pro-badge {
+    background: #111;
+    color: #ffb700; 
+    border: 1px solid #ffb700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-pro-badge:active {
+    background: #ffb700;
+    color: #000;
+}
+
+/* 5 Pulsanti in linea singola */
+.db-selector-grid { 
+    display: flex; 
+    gap: 4px; 
+    margin: 12px 0; 
+    overflow-x: auto; 
+    padding-bottom: 5px; 
+    -webkit-overflow-scrolling: touch; 
+}
+
+.btn-db { 
+    flex: 1; 
+    background: #111; 
+    color: #aaa; 
+    border: 1px solid #222; 
+    padding: 10px 2px; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    font-size: 8px; 
+    text-transform: uppercase; 
+    white-space: nowrap; 
+    min-width: 68px; 
+    cursor: pointer; 
+}
+
+.btn-db.active { 
+    background: #ff1e00 !important; 
+    border-color: #ff1e00 !important; 
+    color: #fff !important; 
+}
+
+/* Barra di Ricerca */
+.search-container { 
+    position: relative; 
+    width: 100%; 
+}
+
+.search-container input { 
+    width: 100%; 
+    background: #111; 
+    border: 1px solid #222; 
+    color: #fff; 
+    padding: 12px; 
+    border-radius: 8px; 
+    font-size: 14px; 
+}
+
+.clear-search { 
+    position: absolute; 
+    right: 12px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    color: #666; 
+    font-size: 18px; 
+    cursor: pointer; 
+}
+
+/* LISTA PRODOTTI: Margine dall'alto aumentato a 170px per non coprire i pulsanti */
+#gear-list { 
+    margin-top: 170px !important; 
+    padding-bottom: 260px !important; 
+    list-style: none; 
+    position: relative;
+    z-index: 1000; /* Più basso della testata fissa */
+}
+
+.category-title { 
+    background: #111; 
+    color: #ff1e00; 
+    font-weight: bold; 
+    padding: 12px 10px; 
+    margin-top: 20px; 
+    border-left: 4px solid #ff1e00; 
+    text-transform: uppercase; 
+    font-size: 12px; 
+    letter-spacing: 0.5px; 
+    display: block; 
+}
+
+.gear-item { 
+    padding: 15px 10px; 
+    border-bottom: 1px solid #111; 
+    color: #ccc; 
+    background: #000; 
+    cursor: pointer; 
+    display: block; 
+    -webkit-tap-highlight-color: transparent; 
+    user-select: none; 
+}
+
+.gear-item-active { 
+    background-color: #ff1e00 !important; 
+    color: white !important; 
+}
+
+.selected { 
+    border-left: 3px solid #ff1e00; 
+    background: #050505; 
+}
+
+/* Footer Fisso in Basso */
+.selection-footer { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    right: 0; 
+    background: #111; 
+    border-top: 2px solid #ff1e00; 
+    padding: 15px; 
+    z-index: 3000; 
+    max-height: 220px; 
+    overflow-y: auto; 
+}
+
+.footer-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 10px; 
+}
+
+.footer-header h3 { 
+    font-size: 14px; 
+}
+
+.btn-share { 
+    background: #ff1e00; 
+    color: #fff; 
+    border: none; 
+    padding: 8px 16px; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    font-size: 13px; 
+}
+
+#added-items-summary { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 6px; 
+    max-height: 100px; 
+    overflow-y: auto; 
+    font-size: 12px; 
+    color: #aaa; 
+}
+
+.summary-tag { 
+    background: #222; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    border: 1px solid #333; 
+}
+
+.btn-qta { 
+    color: #ff1e00; 
+    font-weight: bold; 
+    padding: 0 4px; 
+    cursor: pointer; 
+    font-size: 14px; 
+}
+
+.btn-clear { 
+    background: transparent; 
+    color: #ff1e00; 
+    border: 1px solid #ff1e00; 
+    padding: 5px 12px; 
+    border-radius: 6px; 
+    font-size: 11px; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
+/* Toast notifiche */
+.toast { 
+    position: fixed; 
+    top: 25%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: rgba(255, 30, 0, 0.95); 
+    color: white; 
+    padding: 8px 16px; 
+    border-radius: 6px; 
+    font-size: 13px; 
+    font-weight: bold; 
+    z-index: 4000; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
+    pointer-events: none; 
+    transition: opacity 0.2s; 
+}
+
+/* Analisi Foto e Canvas */
 .upload-area { background: #111; border: 2px dashed #222; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0; }
 .btn-primary { background: #ff1e00; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .results-box { background: #111; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; display: flex; justify-content: space-around; }

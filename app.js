@@ -1,6 +1,9 @@
 const ui = {
     selectedItems: [],
     isMirrored: false,
+    // RIGHE DA AGGIUNGERE QUI SOTTO:
+    isUnlocked: localStorage.getItem('rei_pro_unlocked') === 'true',
+    deviceSeed: localStorage.getItem('rei_device_seed'),
     currentDB: 'magazzino_studio.csv',
 
     showSection(id) {
@@ -9,7 +12,13 @@ const ui = {
         if (id === 'inventory') this.caricaMagazzino();
     },
 
-    cambiaDatabase(nomeFile) {
+        cambiaDatabase(nomeFile) {
+        // BLOCCO REALE: Se non è lo studio e l'app è bloccata, avvia la procedura PRO
+        if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
+            this.proponiSblocco();
+            return;
+        }
+
         this.currentDB = nomeFile;
         document.querySelectorAll('.btn-db').forEach(btn => {
             if (btn.getAttribute('onclick').includes(nomeFile)) {
@@ -19,11 +28,67 @@ const ui = {
             }
         });
         this.caricaMagazzino();
-        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').toUpperCase());
+        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').replace('?v=2','').toUpperCase());
+    },
+
+    proponiSblocco() {
+        // Recupera o genera un ID unico a 4 cifre fisso per questo iPhone
+        if (!this.deviceSeed) {
+            this.deviceSeed = localStorage.getItem('rei_device_seed');
+            if (!this.deviceSeed) {
+                this.deviceSeed = Math.floor(Math.random() * 8999 + 1000);
+                localStorage.setItem('rei_device_seed', this.deviceSeed);
+            }
+        }
+        
+        const codiceID = "REI-" + this.deviceSeed;
+        
+        // ALGORITMO SEGRETO: Il numero dell'ID moltiplicato per 3 + "PRO"
+        const chiaveCorretta = (parseInt(this.deviceSeed) * 3) + "PRO";
+
+        const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Produzione, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
+        
+        const chiaveUtente = prompt(messaggio);
+
+        if (chiaveUtente === chiaveCorretta) {
+            localStorage.setItem('rei_pro_unlocked', 'true');
+            this.isUnlocked = true;
+            alert("✅ Sblocco riuscito! Tutti i database sono ora attivi.");
+            
+            // Nasconde il tasto dorato e pulisce i lucchetti dai pulsanti
+            const badge = document.getElementById('pro-badge');
+            if (badge) badge.style.display = "none";
+            
+            document.querySelectorAll('.btn-db').forEach(btn => {
+                btn.innerText = btn.innerText.replace(' 🔒', '').trim();
+            });
+            
+            this.cambiaDatabase('magazzino_studio.csv'); // Rinfresca l'app
+        } else if (chiaveUtente) {
+            alert("❌ Chiave errata. Riprova o contatta l'assistenza.");
+        }
     },
 
     async caricaMagazzino() {
         try {
+            // Se l'app è già PRO, nascondiamo il pulsante "Passa a PRO"
+            const badge = document.getElementById('pro-badge');
+            if (this.isUnlocked && badge) {
+                badge.style.display = "none";
+            }
+
+
+                        // --- NUOVO CONTROLLO: Se l'app è sbloccata, togliamo i lucchetti dai pulsanti ---
+            if (this.isUnlocked) {
+                document.querySelectorAll('.btn-db').forEach(btn => {
+                    if (btn.innerText.includes('🔒')) {
+                        btn.innerText = btn.innerText.replace(' 🔒', '').trim();
+                    }
+                });
+            }
+
+            // --- FINE NUOVO CONTROLLO ---
+
             const resp = await fetch(this.currentDB);
             const testo = await resp.text();
             const righe = testo.split('\n');
@@ -111,7 +176,7 @@ const ui = {
             return;
         }
         // Condivisione mantiene l'ordine di selezione originale
-        const testo = "Lista Noleggio REI:\n\n" + 
+        const testo = "Lista Attrezzatura REI:\n\n" + 
             this.selectedItems.map(i => `${i.qta}x ${i.nome}`).join('\n');
         if (navigator.share) {
             try { await navigator.share({ title: 'Lista REI', text: testo }); } 
@@ -120,7 +185,7 @@ const ui = {
     },
 
     fallbackMail(testo) {
-        window.open(`mailto:?subject=Lista Noleggio REI&body=${encodeURIComponent(testo)}`);
+        window.open(`mailto:?subject=Lista Attrezzatura REI&body=${encodeURIComponent(testo)}`);
     },
 
     clearList() {
