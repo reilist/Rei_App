@@ -8,84 +8,86 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Dashboard -->
-        <main id="dashboard-section" class="section">
-            <div class="logo-container">
-                <img src="logo.png" alt="Logo REI" class="main-logo">
-            </div>
-            <div class="action-card" onclick="ui.showSection('analysis')">
-                <div class="icon">📸</div>
-                <h2>Analizza Foto</h2>
-                <p>Schema luci e analisi</p>
-            </div>
-            <div class="action-card" onclick="ui.showSection('inventory')">
-                <div class="icon">📦</div>
-                <h2>Crea Elenco</h2>
-                <p>Magazzino Attrezzatura</p>
-            </div>
-        </main>
 
-        <!-- Analisi -->
-        <section id="analysis-section" class="section hidden">
+    <!-- SEZIONE DASHBOARD (HOME) -->
+    <section id="dashboard-section" class="section">
+        <div class="logo-container">
+            <img src="logo.png" alt="REI Logo" class="main-logo">
+        </div>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="ui.showSection('inventory')">📝 CREA LISTA</button>
+            <button class="menu-btn" onclick="ui.showSection('analysis')">📸 ANALISI REFERENCE</button>
+            <button class="menu-btn empty-btn" style="border-style: dashed; border-color: #333; color: #444;">➕ PROSSIMO SVILUPPO</button>
+        </div>
+    </section>
+
+    <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
+    <section id="inventory-section" class="section hidden">
+        <!-- Testata Fissa in Alto -->
+        <div class="sticky-header">
             <div class="back-btn" onclick="ui.showSection('dashboard')">← Indietro</div>
-            <h2>Analisi Reference</h2>
-            <div class="upload-area">
-                <input type="file" id="imageInput" accept="image/*" hidden onchange="ui.analyzeImage()">
-                <button class="btn-primary" onclick="document.getElementById('imageInput').click()">Carica Foto</button>
+            
+            <!-- 5 Pulsanti in riga unica -->
+            <div class="db-selector-grid">
+                <button class="btn-db active" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITALE</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PROD.</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv')">🔋 TUTTO</button>
             </div>
-            <div id="analysis-results" class="hidden">
-                <div class="results-box">
-                    <p>Durezza: <span id="res-hardness">-</span></p>
-                    <p>Angolo: <span id="res-angle">-</span></p>
-                </div>
 
-<button class="btn-clear" onclick="ui.toggleMirror()" style="margin: 10px auto; display: block;">🔄 Specchia Schema (L/R)</button>
-
-                <!-- MINIATURA DELLA FOTO -->
-    <div id="thumb-container" onclick="ui.togglePhotoZoom()">
-        <img id="image-preview" src="" alt="Anteprima">
-        <p id="zoom-label">Tocca per ingrandire</p>
-    </div>
-                <canvas id="lightingDiagram" width="300" height="300"></canvas>
+            <div class="search-container">
+                <input type="text" id="searchGear" placeholder="Cerca nel database attivo..." oninput="ui.filterGear()">
+                <span class="clear-search" onclick="ui.clearSearch()">×</span>
             </div>
-        </section>
-
-        <!-- Magazzino -->
-        <section id="inventory-section" class="section hidden">
-    <div class="back-btn" onclick="ui.showSection('dashboard')">← Indietro</div>
-    
-    <!-- 4 Pulsantoni Sequenza: Studio, Esterno, Location, Digitale -->
-    <div class="db-selector-grid">
-        <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
-        <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">☀️ PRODUZIONE</button>
-        <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION</button>
-        <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITALE</button>
-    </div>
-
-    <div class="search-container">
-        <input type="text" id="searchGear" placeholder="Cerca nel database attivo..." oninput="ui.filterGear()">
-        <span class="clear-search" onclick="ui.clearSearch()">×</span>
-    </div>
-
-    <ul id="gear-list"></ul>
-
-    <!-- Footer Fisso -->
-    <div id="selection-footer" class="selection-footer">
-        <div class="footer-header">
-            <h3>Lista Noleggio (<span id="count">0</span>)</h3>
-            <button class="btn-share" onclick="ui.shareList()">Condividi Elenco</button>
         </div>
-        <div id="added-items-summary">Nessun elemento selezionato</div>
-        <div style="text-align: right; margin-top: 10px;">
-            <button class="btn-clear" onclick="ui.clearList()">Svuota Elenco</button>
+
+        <!-- Lista prodotti (con margine per non finire sotto la testata fissa) -->
+        <ul id="gear-list"></ul>
+
+        <!-- Footer Fisso in Basso -->
+        <div id="selection-footer" class="selection-footer">
+            <div class="footer-header">
+                <h3>Lista Noleggio (<span id="count">0</span>)</h3>
+                <button class="btn-share" onclick="ui.shareList()">Condividi Elenco</button>
+            </div>
+            <div id="added-items-summary">Nessun elemento selezionato</div>
+            <div style="text-align: right; margin-top: 10px;">
+                <button class="btn-clear" onclick="ui.clearList()">Svuota Elenco</button>
+            </div>
         </div>
-    </div>
 
-    <div id="toast" class="toast hidden"></div>
-</section>
+        <div id="toast" class="toast hidden"></div>
+    </section>
 
-    </div>
+    <!-- SEZIONE ANALISI REFERENCE -->
+    <section id="analysis-section" class="section hidden">
+        <div class="back-btn" onclick="ui.showSection('dashboard')">← Indietro</div>
+        <h2>Analisi Reference</h2>
+        
+        <div class="upload-area">
+            <input type="file" id="imageInput" accept="image/*" hidden onchange="ui.analyzeImage()">
+            <button class="btn-primary" onclick="document.getElementById('imageInput').click()">Carica Foto</button>
+        </div>
+        
+        <div id="analysis-results" class="hidden">
+            <div class="results-box">
+                <p>Durezza: <span id="res-hardness">-</span></p>
+                <p>Angolo: <span id="res-angle">-</span></p>
+            </div>
+
+            <button class="btn-clear" onclick="ui.toggleMirror()" style="margin: 10px auto; display: block;">🔄 Specchia Schema (L/R)</button>
+
+            <!-- Miniatura con Zoom -->
+            <div id="thumb-container" onclick="ui.togglePhotoZoom()">
+                <img id="image-preview" src="" alt="Anteprima">
+                <p id="zoom-label">Tocca per ingrandire</p>
+            </div>
+
+            <canvas id="lightingDiagram" width="300" height="300"></canvas>
+        </div>
+    </section>
+
     <script src="app.js"></script>
 </body>
 </html>

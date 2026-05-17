@@ -1,154 +1,56 @@
-body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
-.section { padding: 20px; min-height: 100vh; transition: 0.3s; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { background: #000; color: #fff; padding: 15px; overflow-x: hidden; }
+
+.section { width: 100%; max-width: 500px; margin: 0 auto; padding-bottom: 20px; }
 .hidden { display: none !important; }
 
-/* Logo */
-.logo-container { text-align: center; padding: 20px 0; }
-.main-logo { max-height: 80px; width: auto; }
+/* Dashboard */
+.logo-container { text-align: center; margin: 40px 0; }
+.main-logo { max-width: 180px; height: auto; }
+.menu-grid { display: flex; flex-direction: column; gap: 15px; }
+.menu-btn { background: #111; color: #fff; border: 1px solid #222; padding: 20px; border-radius: 12px; font-size: 16px; font-weight: bold; text-align: left; cursor: pointer; transition: 0.2s; }
+.menu-btn:active { background: #ff1e00; }
 
-/* Cards */
-.action-card { background: #111; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; text-align: center; cursor: pointer; }
-.action-card .icon { font-size: 40px; margin-bottom: 10px; }
-.back-btn { color: #ff1e00; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+/* Testata Fissa */
+.sticky-header { position: fixed; top: 0; left: 0; right: 0; background: #000; z-index: 1000; padding: 15px; border-bottom: 1px solid #111; }
+.back-btn { color: #ff1e00; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 14px; display: inline-block; }
 
-/* Magazzino */
-#gear-list {
-    padding-bottom: 300px !important; /* Spazio per non coprire le ultime voci */
-    margin: 0;
-    padding-left: 0;
-    list-style: none;
-}
-
-/* Stile per i Titoli (es. NIKON FOTOCAMERA) */
-.category-title {
-    background: #1a1a1a;
-    color: #ff1e00;
-    font-weight: bold;
-    padding: 15px 12px;
-    margin-top: 25px;
-    border-left: 5px solid #ff1e00;
-    text-transform: uppercase;
-    font-size: 14px;
-    letter-spacing: 1px;
-    display: block;
-}
-
-/* Stile per i Prodotti Singoli */
-.gear-item {
-    padding: 14px 12px;
-    border-bottom: 1px solid #222;
-    color: #ccc;
-    cursor: pointer;
-    background: #000;
-    display: block;
-}
+/* 5 Pulsanti in linea rimpiccioliti */
+.db-selector-grid { display: flex; gap: 4px; margin: 5px 0 10px 0; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+.btn-db { flex: 1; background: #111; color: #aaa; border: 1px solid #222; padding: 10px 2px; border-radius: 6px; font-weight: bold; font-size: 8px; text-transform: uppercase; white-space: nowrap; min-width: 68px; cursor: pointer; }
+.btn-db.active { background: #ff1e00 !important; border-color: #ff1e00 !important; color: #fff !important; }
 
 /* Ricerca */
-.search-container { position: relative; margin-bottom: 20px; }
-#searchGear { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; }
-.clear-search { position: absolute; right: 15px; top: 10px; font-size: 20px; color: #666; cursor: pointer; }
+.search-container { position: relative; width: 100%; }
+.search-container input { width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; }
+.clear-search { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 18px; cursor: pointer; }
 
-/* Footer e Pulsante Verde */
-.selection-footer { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 2px solid #ff1e00; padding: 15px; z-index: 1000; max-height: 250px; overflow-y: auto; }
+/* Lista Prodotti e Categorie */
+#gear-list { margin-top: 155px; padding-bottom: 300px !important; list-style: none; }
+.category-title { background: #111; color: #ff1e00; font-weight: bold; padding: 12px 10px; margin-top: 20px; border-left: 4px solid #ff1e00; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; display: block; }
+.gear-item { padding: 15px 10px; border-bottom: 1px solid #111; color: #ccc; background: #000; cursor: pointer; display: block; -webkit-tap-highlight-color: transparent; user-select: none; }
+.gear-item-active { background-color: #ff1e00 !important; color: white !important; }
+.selected { border-left: 3px solid #ff1e00; background: #050505; }
+
+/* Footer Fisso */
+.selection-footer { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 2px solid #ff1e00; padding: 15px; z-index: 1000; max-height: 220px; overflow-y: auto; }
 .footer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.btn-share { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.summary-tag { background: #222; padding: 8px; border-radius: 5px; margin: 4px; display: inline-flex; align-items: center; border: 1px solid #333; font-size: 13px; }
-.btn-qta { background: #444; padding: 2px 8px; border-radius: 4px; margin-left: 5px; cursor: pointer; }
+.footer-header h3 { font-size: 14px; }
+.btn-share { background: #ff1e00; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+#added-items-summary { display: flex; flex-wrap: wrap; gap: 6px; max-height: 100px; overflow-y: auto; font-size: 12px; color: #aaa; }
+.summary-tag { background: #222; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 6px; border: 1px solid #333; }
+.btn-qta { color: #ff1e00; font-weight: bold; padding: 0 4px; cursor: pointer; font-size: 14px; }
+.btn-clear { background: transparent; color: #ff1e00; border: 1px solid #ff1e00; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
 /* Toast */
-.toast {
-    position: fixed;
-    top: 30%; /* Più in alto per non coprire il centro */
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 30, 0, 0.9); /* Rosso Profoto leggermente trasparente */
-    color: white;
-    padding: 8px 20px; /* Più sottile */
-    border-radius: 8px; /* Meno arrotondato, più moderno */
-    font-size: 14px; /* Carattere più piccolo */
-    font-weight: bold;
-    z-index: 2000;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    pointer-events: none;
-    transition: opacity 0.2s; /* Sparizione più rapida */
-}
+.toast { position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 30, 0, 0.95); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: none; transition: opacity 0.2s; }
 
-/* Canvas Analisi */
-#lightingDiagram { background: #000; border-radius: 50%; display: block; margin: 20px auto; border: 1px solid #333; }
-.results-box { background: #111; padding: 15px; border-radius: 10px; text-align: center; }
-
-.btn-clear {
-    background: transparent;
-    color: #ff1e00; /* Rosso Profoto */
-    border: 1px solid #ff1e00;
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-clear:active {
-    background: rgba(255, 30, 0, 0.1); /* Feedback al tocco */
-}
-
-#thumb-container {
-    text-align: center;
-    margin: 15px auto;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#image-preview {
-    max-width: 120px; /* Dimensione miniatura */
-    border: 2px solid #333;
-    border-radius: 8px;
-}
-
-#zoom-label { font-size: 10px; color: #666; margin-top: 5px; }
-
-/* CLASSE PER LO ZOOM TUTTO SCHERMO */
-.photo-fullscreen {
-    position: fixed !important;
-    top: 0; left: 0;
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: 100vw !important;
-    z-index: 9999;
-    object-fit: contain;
-    background: black;
-    border: none !important;
-    border-radius: 0 !important;
-}
-
-/* --- NUOVI COMANDI PER I 4 PULSANTI IN RIGA --- */
-
-.db-selector-grid {
-    display: flex;             /* Li mette uno di fianco all'altro */
-    gap: 5px;                  /* Spazio minimo tra i tasti */
-    margin: 15px 0;
-    overflow-x: auto;          /* Se non ci stanno, puoi scorrerli col dito */
-    padding: 5px;
-}
-
-.btn-db {
-    flex: 1;                   /* Ognuno prende lo stesso spazio */
-    background: #1a1a1a;
-    color: #fff;
-    border: 1px solid #333;
-    padding: 12px 2px;         /* Altezza comoda per il dito */
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 10px;           /* Testo piccolo per farli stare in riga */
-    text-transform: uppercase;
-    white-space: nowrap;       /* Il testo non va a capo */
-    cursor: pointer;
-}
-
-/* Colore rosso quando il magazzino è attivo */
-.btn-db.active {
-    background: #ff1e00;
-    border-color: #ff1e00;
-}
-
+/* Analisi e Mappa Luci (Fotografo View) */
+.upload-area { background: #111; border: 2px dashed #222; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0; }
+.btn-primary { background: #ff1e00; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.results-box { background: #111; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; display: flex; justify-content: space-around; }
+#thumb-container { text-align: center; margin: 15px auto; cursor: pointer; }
+#image-preview { max-width: 100px; border: 2px solid #222; border-radius: 6px; }
+#zoom-label { font-size: 10px; color: #555; margin-top: 4px; }
+.photo-fullscreen { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; max-width: 100vw !important; z-index: 9999; object-fit: contain; background: black; }
+canvas { display: block; margin: 0 auto; background: #000; }
