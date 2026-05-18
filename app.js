@@ -42,7 +42,7 @@ const ui = {
         
         const codiceID = "REI-" + this.deviceSeed;
         const chiaveCorretta = (parseInt(this.deviceSeed) * 3) + "PRO";
-        const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Produzione, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
+        const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Production, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
         
         const chiaveUtente = prompt(messaggio);
 
@@ -276,12 +276,40 @@ const ui = {
         this.applyStarFilter();
     },
 
-                applyStarFilter() {const q = document.getElementById('searchGear').value.toLowerCase();if (!this.isStarFilterActive && q === "") {this.filterGear();return;}document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");const nomiMostrati = [];document.querySelectorAll('.gear-item').forEach(item => {// 1. Controlla il testo digitato nella barra di ricercaconst nomeInMinuscolo = item.innerText.toLowerCase().trim();const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);// 2. CONTROLLO DIRETTO SULLA STELLA ROSSA (.fav)const haStellaRossa = item.querySelector('.item-star.fav') !== null;const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;// 3. Nascondi o mostra la rigaif (passaFiltroTesto && passaFiltroStella) {if (nomiMostrati.includes(nomeInMinuscolo)) {item.style.display = "none";} else {item.style.display = "flex";nomiMostrati.push(nomeInMinuscolo);}} else {item.style.display = "none";}});},
+    applyStarFilter() {
+        const q = document.getElementById('searchGear').value.toLowerCase();
+        
+        if (!this.isStarFilterActive && q === "") {
+            this.filterGear();
+            return;
+        }
 
+        document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+        const nomiMostrati = [];
+
+        document.querySelectorAll('.gear-item').forEach(item => {
+            const nomeInMinuscolo = item.innerText.toLowerCase().trim();
+            const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
+
+            const haStellaRossa = item.querySelector('.item-star.fav') !== null;
+            const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
+
+            if (passaFiltroTesto && passaFiltroStella) {
+                if (nomiMostrati.includes(nomeInMinuscolo)) {
+                    item.style.display = "none";
+                } else {
+                    item.style.display = "flex";
+                    nomiMostrati.push(nomeInMinuscolo);
+                }
+            } else {
+                item.style.display = "none";
+            }
+        });
+    },
 
     analyzeImage() {
         const input = document.getElementById('imageInput');
-        if (input.files && input.files[0]) {
+        if (input.files && input.files) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById('image-preview').src = e.target.result;
@@ -313,7 +341,7 @@ const ui = {
                     this.drawDiagram(pos);
                 };
             };
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(input.files);
         }
     },
 
