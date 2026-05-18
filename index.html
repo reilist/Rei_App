@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="apple-touch-icon" href="logo.png">
-    <title>REI App - Pro v3</title>
+    <title>REI App - Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
         <div class="menu-grid">
             <button class="menu-btn" onclick="ui.showSection('inventory')">📝 CREA LISTA</button>
             <button class="menu-btn" onclick="ui.showSection('analysis')">📸 ANALISI REFERENCE</button>
-            <button class="menu-btn empty-btn" style="border-style: dashed; border-color: #333; color: #444; background: transparent;">➕ PROSSIMO SVILUPPO</button>
+            <button class="menu-btn empty-btn" style="border-style: dashed; border-color: #333; color: #444;">➕ PROSSIMO SVILUPPO</button>
         </div>
     </section>
 
@@ -25,22 +25,22 @@
     <section id="inventory-section" class="section hidden">
         <!-- Testata Fissa in Alto -->
         <div class="sticky-header">
-            <!-- Barra Superiore: Indietro e Badge PRO -->
-            <div class="top-nav-bar">
-                <div class="back-btn" onclick="ui.showSection('dashboard')">← Indietro</div>
+            <!-- RIGA SUPERIORE: Indietro a sinistra e Passa a PRO a destra -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0;">← Indietro</div>
                 <button id="pro-badge" class="btn-pro-badge" onclick="ui.proponiSblocco()">⭐ PASSA A PRO</button>
             </div>
             
-            <!-- 5 Pulsanti di Selezione Database -->
+            <!-- 5 Pulsanti in riga unica con i Lucchetti PRO finali -->
             <div class="db-selector-grid">
                 <button class="btn-db active" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITALE 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PROD. 🔒</button>
-                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv?v=2')">🔋 TUTTO 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv')">🔋 TUTTO 🔒</button>
             </div>
 
-            <!-- Barra di Ricerca Unificata -->
+            <!-- Barra di Ricerca con Stella Master per i Preferiti -->
             <div class="search-container">
                 <input type="text" id="searchGear" placeholder="Cerca nel database attivo..." oninput="ui.filterGear()">
                 <span class="star-search-btn" id="starFilterBtn" onclick="ui.toggleStarFilter()">☆</span>
@@ -48,10 +48,10 @@
             </div>
         </div>
 
-        <!-- Lista prodotti dinamica -->
+        <!-- Lista prodotti (con margine per non finire sotto la testata fissa) -->
         <ul id="gear-list"></ul>
 
-        <!-- Footer Fisso Lista Selezionati -->
+        <!-- Footer Fisso in Basso -->
         <div id="selection-footer" class="selection-footer">
             <div class="footer-header">
                 <h3>Lista Noleggio (<span id="count">0</span>)</h3>
@@ -84,6 +84,7 @@
 
             <button class="btn-clear" onclick="ui.toggleMirror()" style="margin: 10px auto; display: block;">🔄 Specchia Schema (L/R)</button>
 
+            <!-- Miniatura con Zoom -->
             <div id="thumb-container" onclick="ui.togglePhotoZoom()">
                 <img id="image-preview" src="" alt="Anteprima">
                 <p id="zoom-label">Tocca per ingrandire</p>

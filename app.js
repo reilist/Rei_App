@@ -28,7 +28,7 @@ const ui = {
             }
         });
         this.caricaMagazzino();
-        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').replace('?v=2','').toUpperCase());
+        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').toUpperCase());
     },
 
     proponiSblocco() {
@@ -119,7 +119,6 @@ const ui = {
                     li.appendChild(starSpan);
                     
                     nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
-                    nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
                     nameSpan.ontouchend = function() { 
                         setTimeout(() => li.classList.remove('gear-item-active'), 80); 
                     };
@@ -131,7 +130,7 @@ const ui = {
                 lista.appendChild(li);
             }
             
-            // Se i filtri erano già attivi all'apertura, riapplicali al volo
+            // Applica il filtro attivo anche dopo il caricamento
             this.filterGear();
             
         } catch (e) { 
@@ -207,9 +206,9 @@ const ui = {
     },
 
     filterGear() {
-        const q = document.getElementById('searchGear').value.toLowerCase().trim();
+        const q = document.getElementById('searchGear') ? document.getElementById('searchGear').value.toLowerCase().trim() : "";
         
-        // Se sia la ricerca che la stella master sono disattivate, mostra tutto normalmente
+        // Se entrambi i filtri sono spenti, mostra tutto normalmente
         if (q === "" && !this.isStarFilterActive) {
             document.querySelectorAll('.gear-item').forEach(item => item.style.display = "flex");
             document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
@@ -218,28 +217,25 @@ const ui = {
 
         // Durante il filtraggio nascondiamo sempre i titoli delle categorie
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
-        
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            // Estrae il testo pulito leggendo solo il nameSpan interno (.item-text)
             const textSpan = item.querySelector('.item-text');
             if (!textSpan) return;
             
             const nomeTesto = textSpan.innerText.trim();
             const nomeInMinuscolo = nomeTesto.toLowerCase();
 
-            // 1. Controllo della barra di ricerca testuale
+            // 1. Controllo del testo digitato
             const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
 
-            // 2. Controllo della Stella Preferiti (guarda la classe grafica 'fav')
+            // 2. Controllo grafico della Stella Preferiti (.fav)
             const starSpan = item.querySelector('.item-star');
             const haStellaRossa = starSpan ? starSpan.classList.contains('fav') : false;
             const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
 
-            // Applica l'azione coordinata: mostra solo se supera ENTRAMBI i filtri
+            // Mostra la riga solo se rispetta entrambi i parametri
             if (passaFiltroTesto && passaFiltroStella) {
-                // Filtro anti-duplicati basato sul nome pulito
                 if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
                 } else {
@@ -253,7 +249,7 @@ const ui = {
     },
 
     clearSearch() { 
-        document.getElementById('searchGear').value = ""; 
+        if (document.getElementById('searchGear')) document.getElementById('searchGear').value = ""; 
         this.filterGear(); 
     },
 
@@ -279,8 +275,6 @@ const ui = {
         }
         localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));
         this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");
-        
-        // Forza l'aggiornamento dei filtri al clic
         this.filterGear();
     },
 
@@ -292,29 +286,7 @@ const ui = {
             btn.classList.toggle('active', this.isStarFilterActive);
         }
         this.filterGear();
-    },
+    }
+};
 
-    analyzeImage() {
-        const input = document.getElementById('imageInput');
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('image-preview').src = e.target.result;
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 100; canvas.height = 100;
-                    ctx.drawImage(img, 0, 0, 100, 100);
-                    const data = ctx.getImageData(0, 0, 100, 100).data;
-                    let leftLum = 0, rightLum = 0;
-                    for (let i = 0; i < data.length; i += 4) {
-                        const lum = (data[i] + data[i+1] + data[i+2]) / 3;
-                        const x = (i / 4) % 100;
-                        const y = Math.floor((i / 4) / 100);
-                        if (y > 20 && y < 80) { if (x < 50) leftLum += lum; else rightLum += lum; }
-                    }
-                    const total = leftLum + rightLum;
-                    const diff = Math.abs(leftLum - rightLum) / total;
-                    let pos = { nome: "Frontale", x: 0.5, y: 0.8
+window.onload = () => ui.showSection('dashboard');
