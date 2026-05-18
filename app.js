@@ -4,11 +4,8 @@ const ui = {
     isUnlocked: localStorage.getItem('rei_pro_unlocked') === 'true',
     deviceSeed: localStorage.getItem('rei_device_seed'),
     currentDB: 'magazzino_studio.csv',
-    
-    // --- NUOVE RIGHE PER LA MEMORIA DEI PREFERITI ---
     favorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],
     isStarFilterActive: false,
-    // --- FINE NUOVE RIGHE ---
 
     showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
@@ -16,8 +13,7 @@ const ui = {
         if (id === 'inventory') this.caricaMagazzino();
     },
 
-        cambiaDatabase(nomeFile) {
-        // BLOCCO REALE: Se non è lo studio e l'app è bloccata, avvia la procedura PRO
+    cambiaDatabase(nomeFile) {
         if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
             this.proponiSblocco();
             return;
@@ -36,7 +32,6 @@ const ui = {
     },
 
     proponiSblocco() {
-        // Recupera o genera un ID unico a 4 cifre fisso per questo iPhone
         if (!this.deviceSeed) {
             this.deviceSeed = localStorage.getItem('rei_device_seed');
             if (!this.deviceSeed) {
@@ -46,10 +41,7 @@ const ui = {
         }
         
         const codiceID = "REI-" + this.deviceSeed;
-        
-        // ALGORITMO SEGRETO: Il numero dell'ID moltiplicato per 3 + "PRO"
         const chiaveCorretta = (parseInt(this.deviceSeed) * 3) + "PRO";
-
         const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Produzione, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
         
         const chiaveUtente = prompt(messaggio);
@@ -59,7 +51,6 @@ const ui = {
             this.isUnlocked = true;
             alert("✅ Sblocco riuscito! Tutti i database sono ora attivi.");
             
-            // Nasconde il tasto dorato e pulisce i lucchetti dai pulsanti
             const badge = document.getElementById('pro-badge');
             if (badge) badge.style.display = "none";
             
@@ -67,7 +58,7 @@ const ui = {
                 btn.innerText = btn.innerText.replace(' 🔒', '').trim();
             });
             
-            this.cambiaDatabase('magazzino_studio.csv'); // Rinfresca l'app
+            this.cambiaDatabase('magazzino_studio.csv');
         } else if (chiaveUtente) {
             alert("❌ Chiave errata. Riprova o contatta l'assistenza.");
         }
@@ -75,14 +66,11 @@ const ui = {
 
     async caricaMagazzino() {
         try {
-            // Se l'app è già PRO, nascondiamo il pulsante "Passa a PRO"
             const badge = document.getElementById('pro-badge');
             if (this.isUnlocked && badge) {
                 badge.style.display = "none";
             }
 
-
-                        // --- NUOVO CONTROLLO: Se l'app è sbloccata, togliamo i lucchetti dai pulsanti ---
             if (this.isUnlocked) {
                 document.querySelectorAll('.btn-db').forEach(btn => {
                     if (btn.innerText.includes('🔒')) {
@@ -90,8 +78,6 @@ const ui = {
                     }
                 });
             }
-
-            // --- FINE NUOVO CONTROLLO ---
 
             const resp = await fetch(this.currentDB);
             const testo = await resp.text();
@@ -108,34 +94,30 @@ const ui = {
                 if (voce === "" || voce.toLowerCase() === "descrizione") continue;
 
                 const li = document.createElement('li');
-                li.innerText = voce;
 
-                                                                if (prossima.toLowerCase() === "descrizione") {
+                if (prossima.toLowerCase() === "descrizione") {
                     li.className = "category-title";
+                    li.innerText = voce;
                 } else {
                     li.className = "gear-item";
                     
-                    // 1. Crea il testo singolo del prodotto
                     const nameSpan = document.createElement('span');
                     nameSpan.className = "item-text";
                     nameSpan.innerText = voce;
                     nameSpan.onclick = () => this.addItem(voce);
                     li.appendChild(nameSpan);
 
-                    // 2. Crea la stellina interattiva a destra
                     const starSpan = document.createElement('span');
                     starSpan.className = "item-star";
                     starSpan.innerText = this.favorites.includes(voce) ? "★" : "☆";
                     if (this.favorites.includes(voce)) starSpan.classList.add('fav');
                     
-                    // Clic sulla stellina (attiva/disattiva preferito)
                     starSpan.onclick = (e) => {
-                        e.stopPropagation(); // Blocca l'aggiunta al carrello
+                        e.stopPropagation();
                         this.toggleFavorite(voce, starSpan);
                     };
                     li.appendChild(starSpan);
                     
-                    // 3. Lampo rosso istantaneo sul testo dell'oggetto
                     nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
                     nameSpan.ontouchend = function() { 
                         setTimeout(() => li.classList.remove('gear-item-active'), 80); 
@@ -144,13 +126,8 @@ const ui = {
                     if (this.selectedItems.find(item => item.nome === voce)) {
                         li.classList.add('selected');
                     }
-                    
-                    // ABBIAMO RIMOSSO li.innerText = voce DA QUI CHE DOOPPIAVA TUTTO!
                 }
                 lista.appendChild(li);
-
-
-
             }
         } catch (e) { 
             console.error(e);
@@ -186,7 +163,6 @@ const ui = {
             return;
         }
 
-        // Mostra gli ultimi elementi scelti in cima nel footer
         const visualList = [...this.selectedItems].reverse();
 
         summary.innerHTML = visualList.map(i => `
@@ -203,7 +179,6 @@ const ui = {
             this.showToast("Seleziona almeno un articolo!");
             return;
         }
-        // Condivisione mantiene l'ordine di selezione originale
         const testo = "Lista Attrezzatura REI:\n\n" + 
             this.selectedItems.map(i => `${i.qta}x ${i.nome}`).join('\n');
         if (navigator.share) {
@@ -226,33 +201,33 @@ const ui = {
         }
     },
 
-        filterGear() {
+    filterGear() {
+        if (this.isStarFilterActive) {
+            this.applyStarFilter();
+            return;
+        }
+
         const q = document.getElementById('searchGear').value.toLowerCase();
-        
-        // Se la ricerca è vuota, mostriamo tutto normalmente ripristinando i titoli
         if (q === "") {
-            document.querySelectorAll('.gear-item').forEach(item => item.style.display = "block");
+            document.querySelectorAll('.gear-item').forEach(item => item.style.display = "flex");
             document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
             return;
         }
 
-        // Se l'utente sta cercando, nascondiamo i titoli delle categorie per pulizia
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
-
-        // Array di controllo per tenere traccia dei nomi già mostrati
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            const nomeTesto = item.innerText.toLowerCase().trim();
+            const nameSpan = item.querySelector('.item-text');
+            if (!nameSpan) return;
+            const nomeTesto = nameSpan.innerText.toLowerCase().trim();
             const corrisponde = nomeTesto.includes(q);
 
             if (corrisponde) {
-                // Se abbiamo già mostrato questo identico oggetto, nascondiamo il duplicato
                 if (nomiMostrati.includes(nomeTesto)) {
                     item.style.display = "none";
                 } else {
-                    // È la prima volta che lo incontriamo: lo mostriamo e lo registriamo
-                    item.style.display = "block";
+                    item.style.display = "flex";
                     nomiMostrati.push(nomeTesto);
                 }
             } else {
@@ -261,11 +236,10 @@ const ui = {
         });
     },
 
-toggleFavorite(nome, element) {if (this.favorites.includes(nome)) {this.favorites = this.favorites.filter(f => f !== nome);element.innerText = "☆";element.classList.remove('fav');} else {this.favorites.push(nome);element.innerText = "★";element.classList.add('fav');}localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");if (this.isStarFilterActive) this.applyStarFilter();},toggleStarFilter() {this.isStarFilterActive = !this.isStarFilterActive;const btn = document.getElementById('starFilterBtn');if (btn) {btn.innerText = this.isStarFilterActive ? "★" : "☆";btn.classList.toggle('active', this.isStarFilterActive);}this.applyStarFilter();},
-
-applyStarFilter() {const q = document.getElementById('searchGear').value.toLowerCase();if (!this.isStarFilterActive && q === "") {this.filterGear();return;}// Nascondiamo i titoli di categoria per ordine visivodocument.querySelectorAll('.category-title').forEach(c => c.style.display = "none");const nomiMostrati = [];document.querySelectorAll('.gear-item').forEach(item => {const nameSpan = item.querySelector('.item-text');if (!nameSpan) return;const nomeTesto = nameSpan.innerText.trim();const nomeInMinuscolo = nomeTesto.toLowerCase();// Controlla se rispetta la ricerca e se è tra i preferiticonst passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);const passaFiltroStella = !this.isStarFilterActive || this.favorites.includes(nomeTesto);if (passaFiltroTesto && passaFiltroStella) {if (nomiMostrati.includes(nomeInMinuscolo)) {item.style.display = "none";} else {item.style.display = "flex";nomiMostrati.push(nomeInMinuscolo);}} else {item.style.display = "none";}});},
-
-    clearSearch() { document.getElementById('searchGear').value = ""; this.filterGear(); },
+    clearSearch() { 
+        document.getElementById('searchGear').value = ""; 
+        this.filterGear(); 
+    },
 
     showToast(msg) {
         const t = document.getElementById('toast');
@@ -275,6 +249,65 @@ applyStarFilter() {const q = document.getElementById('searchGear').value.toLower
             t.style.opacity = "0";
             setTimeout(() => t.classList.add('hidden'), 200);
         }, 800);
+    },
+
+    toggleFavorite(nome, element) {
+        if (this.favorites.includes(nome)) {
+            this.favorites = this.favorites.filter(f => f !== nome);
+            element.innerText = "☆";
+            element.classList.remove('fav');
+        } else {
+            this.favorites.push(nome);
+            element.innerText = "★";
+            element.classList.add('fav');
+        }
+        localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));
+        this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");
+        if (this.isStarFilterActive) this.applyStarFilter();
+    },
+
+    toggleStarFilter() {
+        this.isStarFilterActive = !this.isStarFilterActive;
+        const btn = document.getElementById('starFilterBtn');
+        if (btn) {
+            btn.innerText = this.isStarFilterActive ? "★" : "☆";
+            btn.classList.toggle('active', this.isStarFilterActive);
+        }
+        this.applyStarFilter();
+    },
+
+    applyStarFilter() {
+        const q = document.getElementById('searchGear').value.toLowerCase();
+        
+        if (!this.isStarFilterActive && q === "") {
+            this.filterGear();
+            return;
+        }
+
+        document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+        const nomiMostrati = [];
+
+        document.querySelectorAll('.gear-item').forEach(item => {
+            const nameSpan = item.querySelector('.item-text');
+            if (!nameSpan) return;
+            
+            const nomeTesto = nameSpan.innerText.trim();
+            const nomeInMinuscolo = nomeTesto.toLowerCase();
+            
+            const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
+            const passaFiltroStella = !this.isStarFilterActive || this.favorites.includes(nomeTesto);
+
+            if (passaFiltroTesto && passaFiltroStella) {
+                if (nomiMostrati.includes(nomeInMinuscolo)) {
+                    item.style.display = "none";
+                } else {
+                    item.style.display = "flex";
+                    nomiMostrati.push(nomeInMinuscolo);
+                }
+            } else {
+                item.style.display = "none";
+            }
+        });
     },
 
     analyzeImage() {
