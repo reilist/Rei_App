@@ -276,7 +276,7 @@ const ui = {
         this.applyStarFilter();
     },
 
-        applyStarFilter() {
+            applyStarFilter() {
         const q = document.getElementById('searchGear').value.toLowerCase();
         
         if (!this.isStarFilterActive && q === "") {
@@ -290,17 +290,17 @@ const ui = {
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            // LEGGE IL TESTO IN MODO UNIVERSALE: prende il primo span (il testo) e ignora il secondo (la stella)
+            // 1. Controlla il testo della barra di ricerca
             const firstSpan = item.querySelector('span');
-            if (!firstSpan) return;
-            
-            const nomeTesto = firstSpan.innerText.trim();
+            const nomeTesto = firstSpan ? firstSpan.innerText.trim() : "";
             const nomeInMinuscolo = nomeTesto.toLowerCase();
-            
-            // Controlla se rispetta la ricerca e se è tra i preferiti
             const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
-            const passaFiltroStella = !this.isStarFilterActive || this.favorites.includes(nomeTesto);
 
+            // 2. IL TUO COMANDO DIRETTO: Controlla se la riga contiene una stella accesa (.fav)
+            const haStellaRossa = item.querySelector('.item-star.fav') !== null;
+            const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
+
+            // 3. Applica il filtro
             if (passaFiltroTesto && passaFiltroStella) {
                 if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
@@ -313,6 +313,7 @@ const ui = {
             }
         });
     },
+
 
     analyzeImage() {
         const input = document.getElementById('imageInput');
