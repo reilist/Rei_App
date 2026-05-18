@@ -276,7 +276,7 @@ const ui = {
         this.applyStarFilter();
     },
 
-            applyStarFilter() {
+                applyStarFilter() {
         const q = document.getElementById('searchGear').value.toLowerCase();
         
         if (!this.isStarFilterActive && q === "") {
@@ -284,23 +284,26 @@ const ui = {
             return;
         }
 
-        // Nascondiamo i titoli di categoria per ordine visivo
+        // Nascondiamo i titoli di categoria
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
 
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            // 1. Controlla il testo della barra di ricerca
-            const firstSpan = item.querySelector('span');
-            const nomeTesto = firstSpan ? firstSpan.innerText.trim() : "";
+            // 1. Legge il testo per la barra di ricerca in modo sicuro
+            const textSpan = item.querySelector('.item-text');
+            const nomeTesto = textSpan ? textSpan.innerText.trim() : item.innerText.trim();
             const nomeInMinuscolo = nomeTesto.toLowerCase();
+            
+            // 2. Controlla il testo digitato
             const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
 
-            // 2. IL TUO COMANDO DIRETTO: Controlla se la riga contiene una stella accesa (.fav)
-            const haStellaRossa = item.querySelector('.item-star.fav') !== null;
+            // 3. IL TUO COMANDO DIRETTO SUL COLORE: Controlla se la stellina ha la classe "fav" (rossa)
+            const star = item.querySelector('.item-star');
+            const haStellaRossa = star ? star.classList.contains('fav') : false;
             const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
 
-            // 3. Applica il filtro
+            // 4. Mostra o nasconde la riga
             if (passaFiltroTesto && passaFiltroStella) {
                 if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
@@ -313,6 +316,7 @@ const ui = {
             }
         });
     },
+
 
 
     analyzeImage() {
