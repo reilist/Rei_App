@@ -276,7 +276,7 @@ const ui = {
         this.applyStarFilter();
     },
 
-    applyStarFilter() {
+        applyStarFilter() {
         const q = document.getElementById('searchGear').value.toLowerCase();
         
         if (!this.isStarFilterActive && q === "") {
@@ -284,16 +284,20 @@ const ui = {
             return;
         }
 
+        // Nascondiamo i titoli di categoria per ordine visivo
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            const nameSpan = item.querySelector('.item-text');
-            if (!nameSpan) return;
+            // LEGGE IL TESTO IN MODO UNIVERSALE: prende il primo span (il testo) e ignora il secondo (la stella)
+            const firstSpan = item.querySelector('span');
+            if (!firstSpan) return;
             
-            const nomeTesto = nameSpan.innerText.trim();
+            const nomeTesto = firstSpan.innerText.trim();
             const nomeInMinuscolo = nomeTesto.toLowerCase();
             
+            // Controlla se rispetta la ricerca e se è tra i preferiti
             const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
             const passaFiltroStella = !this.isStarFilterActive || this.favorites.includes(nomeTesto);
 
