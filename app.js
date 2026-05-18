@@ -110,12 +110,12 @@ const ui = {
                 const li = document.createElement('li');
                 li.innerText = voce;
 
-                                                if (prossima.toLowerCase() === "descrizione") {
+                                                                if (prossima.toLowerCase() === "descrizione") {
                     li.className = "category-title";
                 } else {
                     li.className = "gear-item";
                     
-                    // 1. Crea il contenitore del testo per evitare sdoppiamenti
+                    // 1. Crea il testo singolo del prodotto
                     const nameSpan = document.createElement('span');
                     nameSpan.className = "item-text";
                     nameSpan.innerText = voce;
@@ -130,12 +130,12 @@ const ui = {
                     
                     // Clic sulla stellina (attiva/disattiva preferito)
                     starSpan.onclick = (e) => {
-                        e.stopPropagation(); // Evita di aggiungere l'oggetto alla lista noleggio
+                        e.stopPropagation(); // Blocca l'aggiunta al carrello
                         this.toggleFavorite(voce, starSpan);
                     };
                     li.appendChild(starSpan);
                     
-                    // 3. Il tuo lampo rosso istantaneo (Spostato sul testo dell'oggetto)
+                    // 3. Lampo rosso istantaneo sul testo dell'oggetto
                     nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
                     nameSpan.ontouchend = function() { 
                         setTimeout(() => li.classList.remove('gear-item-active'), 80); 
@@ -144,8 +144,11 @@ const ui = {
                     if (this.selectedItems.find(item => item.nome === voce)) {
                         li.classList.add('selected');
                     }
+                    
+                    // ABBIAMO RIMOSSO li.innerText = voce DA QUI CHE DOOPPIAVA TUTTO!
                 }
                 lista.appendChild(li);
+
 
 
             }
@@ -258,7 +261,9 @@ const ui = {
         });
     },
 
-toggleFavorite(nome, element) {if (this.favorites.includes(nome)) {this.favorites = this.favorites.filter(f => f !== nome);element.innerText = "☆";element.classList.remove('fav');} else {this.favorites.push(nome);element.innerText = "★";element.classList.add('fav');}localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");if (this.isStarFilterActive) this.applyStarFilter();},toggleStarFilter() {this.isStarFilterActive = !this.isStarFilterActive;const btn = document.getElementById('starFilterBtn');if (btn) {btn.innerText = this.isStarFilterActive ? "★" : "☆";btn.classList.toggle('active', this.isStarFilterActive);}this.applyStarFilter();},applyStarFilter() {const q = document.getElementById('searchGear').value.toLowerCase();if (!this.isStarFilterActive && q === "") {this.filterGear();return;}document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");const nomiMostrati = [];document.querySelectorAll('.gear-item').forEach(item => {const nameSpan = item.querySelector('span');if (!nameSpan) return;const nomeTesto = nameSpan.innerText.trim();const nomeInMinuscolo = nomeTesto.toLowerCase();const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);const passaFiltroStella = !this.isStarFilterActive || this.favorites.includes(nomeTesto);if (passaFiltroTesto && passaFiltroStella) {if (nomiMostrati.includes(nomeInMinuscolo)) {item.style.display = "none";} else {item.style.display = "flex";nomiMostrati.push(nomeInMinuscolo);}} else {item.style.display = "none";}});},
+toggleFavorite(nome, element) {if (this.favorites.includes(nome)) {this.favorites = this.favorites.filter(f => f !== nome);element.innerText = "☆";element.classList.remove('fav');} else {this.favorites.push(nome);element.innerText = "★";element.classList.add('fav');}localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");if (this.isStarFilterActive) this.applyStarFilter();},toggleStarFilter() {this.isStarFilterActive = !this.isStarFilterActive;const btn = document.getElementById('starFilterBtn');if (btn) {btn.innerText = this.isStarFilterActive ? "★" : "☆";btn.classList.toggle('active', this.isStarFilterActive);}this.applyStarFilter();},
+
+applyStarFilter() {const q = document.getElementById('searchGear').value.toLowerCase();if (!this.isStarFilterActive && q === "") {this.filterGear();return;}// Nascondiamo i titoli di categoria per ordine visivodocument.querySelectorAll('.category-title').forEach(c => c.style.display = "none");const nomiMostrati = [];document.querySelectorAll('.gear-item').forEach(item => {const nameSpan = item.querySelector('.item-text');if (!nameSpan) return;const nomeTesto = nameSpan.innerText.trim();const nomeInMinuscolo = nomeTesto.toLowerCase();// Controlla se rispetta la ricerca e se è tra i preferiticonst passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);const passaFiltroStella = !this.isStarFilterActive || this.favorites.includes(nomeTesto);if (passaFiltroTesto && passaFiltroStella) {if (nomiMostrati.includes(nomeInMinuscolo)) {item.style.display = "none";} else {item.style.display = "flex";nomiMostrati.push(nomeInMinuscolo);}} else {item.style.display = "none";}});},
 
     clearSearch() { document.getElementById('searchGear').value = ""; this.filterGear(); },
 
