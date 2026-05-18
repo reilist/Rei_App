@@ -276,7 +276,7 @@ const ui = {
         this.applyStarFilter();
     },
 
-    applyStarFilter() {
+        applyStarFilter() {
         const q = document.getElementById('searchGear').value.toLowerCase();
         
         if (!this.isStarFilterActive && q === "") {
@@ -284,16 +284,26 @@ const ui = {
             return;
         }
 
+        // Nascondiamo i titoli di categoria per ordine visivo
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            const nomeInMinuscolo = item.innerText.toLowerCase().trim();
+            // 1. Controlla il testo digitato nella barra di ricerca usando il nameSpan interno
+            const nameSpan = item.querySelector('.item-text');
+            const nomeTesto = nameSpan ? nameSpan.innerText.trim() : item.innerText.trim();
+            const nomeInMinuscolo = nomeTesto.toLowerCase();
             const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
 
-            const haStellaRossa = item.querySelector('.item-star.fav') !== null;
+            // 2. CONTROLLO INFALLIBILE: Cerca se la stellina di QUESTA riga ha la classe "fav" (quella che la colora di rosso)
+            const starSpan = item.querySelector('.item-star');
+            const haStellaRossa = starSpan ? starSpan.classList.contains('fav') : false;
+            
+            // Se il filtro master in alto è attivo, tieni solo le righe con la stella rossa, altrimenti passano tutte
             const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
 
+            // 3. Mostra o nasconde la riga
             if (passaFiltroTesto && passaFiltroStella) {
                 if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
@@ -306,6 +316,7 @@ const ui = {
             }
         });
     },
+
 
     analyzeImage() {
         const input = document.getElementById('imageInput');
