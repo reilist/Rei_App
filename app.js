@@ -201,40 +201,52 @@ const ui = {
         }
     },
 
-    filterGear() {
-        if (this.isStarFilterActive) {
-            this.applyStarFilter();
-            return;
-        }
-
-        const q = document.getElementById('searchGear').value.toLowerCase();
-        if (q === "") {
+        filterGear() {
+        const q = document.getElementById('searchGear').value.toLowerCase().trim();
+        
+        // Se sia la ricerca che la stella master sono disattivate, mostra tutto normalmente
+        if (q === "" && !this.isStarFilterActive) {
             document.querySelectorAll('.gear-item').forEach(item => item.style.display = "flex");
             document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
             return;
         }
 
+        // Durante il filtraggio nascondiamo sempre i titoli delle categorie
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+        
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            const nameSpan = item.querySelector('.item-text');
-            if (!nameSpan) return;
-            const nomeTesto = nameSpan.innerText.toLowerCase().trim();
-            const corrisponde = nomeTesto.includes(q);
+            // Estrae solo il testo pulito dal contenitore corretto .item-text
+            const textSpan = item.querySelector('.item-text');
+            if (!textSpan) return;
+            
+            const nomeTesto = textSpan.innerText.trim();
+            const nomeInMinuscolo = nomeTesto.toLowerCase();
 
-            if (corrisponde) {
-                if (nomiMostrati.includes(nomeTesto)) {
+            // 1. Controllo della barra di ricerca testuale
+            const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
+
+            // 2. Controllo della Stella Preferiti (guarda la classe grafica 'fav')
+            const starSpan = item.querySelector('.item-star');
+            const haStellaRossa = starSpan ? starSpan.classList.contains('fav') : false;
+            const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
+
+            // Applica l'azione coordinata: mostra solo se supera ENTRAMBI i filtri
+            if (passaFiltroTesto && passaFiltroStella) {
+                // Filtro anti-duplicati
+                if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
                 } else {
                     item.style.display = "flex";
-                    nomiMostrati.push(nomeTesto);
+                    nomiMostrati.push(nomeInMinuscolo);
                 }
             } else {
                 item.style.display = "none";
             }
         });
     },
+
 
     clearSearch() { 
         document.getElementById('searchGear').value = ""; 
@@ -276,47 +288,9 @@ const ui = {
         this.applyStarFilter();
     },
 
-        applyStarFilter() {
-        const q = document.getElementById('searchGear').value.toLowerCase();
-        
-        if (!this.isStarFilterActive && q === "") {
-            this.filterGear();
-            return;
-        }
-
-        // Nascondiamo i titoli di categoria per ordine visivo
-        document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
-
-        const nomiMostrati = [];
-
-        document.querySelectorAll('.gear-item').forEach(item => {
-            // 1. Controlla il testo digitato nella barra di ricerca usando il nameSpan interno
-            const nameSpan = item.querySelector('.item-text');
-            const nomeTesto = nameSpan ? nameSpan.innerText.trim() : item.innerText.trim();
-            const nomeInMinuscolo = nomeTesto.toLowerCase();
-            const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
-
-            // 2. CONTROLLO INFALLIBILE: Cerca se la stellina di QUESTA riga ha la classe "fav" (quella che la colora di rosso)
-            const starSpan = item.querySelector('.item-star');
-            const haStellaRossa = starSpan ? starSpan.classList.contains('fav') : false;
-            
-            // Se il filtro master in alto è attivo, tieni solo le righe con la stella rossa, altrimenti passano tutte
-            const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
-
-            // 3. Mostra o nasconde la riga
-            if (passaFiltroTesto && passaFiltroStella) {
-                if (nomiMostrati.includes(nomeInMinuscolo)) {
-                    item.style.display = "none";
-                } else {
-                    item.style.display = "flex";
-                    nomiMostrati.push(nomeInMinuscolo);
-                }
-            } else {
-                item.style.display = "none";
-            }
-        });
+            applyStarFilter() {
+        this.filterGear();
     },
-
 
     analyzeImage() {
         const input = document.getElementById('imageInput');
