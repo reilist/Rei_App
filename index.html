@@ -23,30 +23,27 @@
 
     <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
     <section id="inventory-section" class="section hidden">
-        <!-- Testata Fissa in Alto -->
+                <!-- Testata Fissa in Alto -->
         <div class="sticky-header">
-            <!-- RIGA SUPERIORE: Indietro a sinistra e Passa a PRO a destra -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0;">← Indietro</div>
-                <button id="pro-badge" class="btn-pro-badge" onclick="ui.proponiSblocco()">⭐ PASSA A PRO</button>
-            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0;">← Indietro</div><!-- PULSANTE PASSA A PRO (Appare solo se bloccato) --><button id="pro-badge" class="btn-pro-badge" onclick="ui.proponiSblocco()">⭐ PASSA A PRO</button></div>
             
-            <!-- 5 Pulsanti in riga unica con i Lucchetti PRO finali -->
+                        <!-- 5 Pulsanti: Icona - Nome - Lucchetto -->
             <div class="db-selector-grid">
                 <button class="btn-db active" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITALE 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PROD. 🔒</button>
-                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv')">🔋 TUTTO 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv?v=2')">🔋 TUTTO 🔒</button>
             </div>
 
-            <!-- Barra di Ricerca con Stella Master per i Preferiti -->
+            
             <div class="search-container">
                 <input type="text" id="searchGear" placeholder="Cerca nel database attivo..." oninput="ui.filterGear()">
-                <span class="star-search-btn" id="starFilterBtn" onclick="ui.toggleStarFilter()">☆</span>
                 <span class="clear-search" onclick="ui.clearSearch()">×</span>
             </div>
         </div>
+
 
         <!-- Lista prodotti (con margine per non finire sotto la testata fissa) -->
         <ul id="gear-list"></ul>

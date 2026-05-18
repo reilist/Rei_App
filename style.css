@@ -23,7 +23,7 @@ body {
     display: none !important; 
 }
 
-/* Dashboard */
+/* Dashboard Home */
 .logo-container { 
     text-align: center; 
     margin: 40px 0; 
@@ -57,14 +57,14 @@ body {
     background: #ff1e00; 
 }
 
-/* TESTATA FISSA IN ALTO */
+/* TESTATA FISSA IN ALTO (Z-index alto per stare sopra la lista) */
 .sticky-header { 
     position: fixed; 
     top: 0; 
     left: 0; 
     right: 0; 
     background: #000; 
-    z-index: 2000; 
+    z-index: 2000; /* Alzato per blindare la visibilità */
     padding: 15px; 
     border-bottom: 1px solid #111; 
 }
@@ -126,10 +126,10 @@ body {
     color: #fff !important; 
 }
 
-/* CONTENITORE RICERCA BLINDATO */
+/* Barra di Ricerca */
 .search-container { 
-    position: relative !important; 
-    width: 100% !important; 
+    position: relative; 
+    width: 100%; 
 }
 
 .search-container input { 
@@ -138,47 +138,27 @@ body {
     border: 1px solid #222; 
     color: #fff; 
     padding: 12px; 
-    padding-right: 70px !important; /* Spazio per le due icone a destra */
     border-radius: 8px; 
     font-size: 14px; 
 }
 
-/* Stella madre nella barra di ricerca */
-.star-search-btn {
-    position: absolute !important;
-    right: 40px !important; 
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    color: #fff !important; 
-    font-size: 20px !important;
-    cursor: pointer !important;
-    user-select: none !important;
-    z-index: 2010 !important; 
-    transition: color 0.2s;
-}
-
-.star-search-btn.active {
-    color: #ff1e00 !important; /* Diventa rossa quando il filtro è attivo */
-}
-
 .clear-search { 
-    position: absolute !important; 
+    position: absolute; 
     right: 12px; 
     top: 50%; 
     transform: translateY(-50%); 
     color: #666; 
     font-size: 18px; 
     cursor: pointer; 
-    z-index: 2010 !important;
 }
 
-/* LISTA PRODOTTI */
+/* LISTA PRODOTTI: Margine dall'alto aumentato a 170px per non coprire i pulsanti */
 #gear-list { 
     margin-top: 170px !important; 
     padding-bottom: 260px !important; 
     list-style: none; 
     position: relative;
-    z-index: 1000; 
+    z-index: 1000; /* Più basso della testata fissa */
 }
 
 .category-title { 
@@ -194,39 +174,15 @@ body {
     display: block; 
 }
 
-/* Allineamento riga prodotto: testo a sinistra, stella a destra */
 .gear-item { 
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    width: 100% !important;
     padding: 15px 10px; 
     border-bottom: 1px solid #111; 
     color: #ccc; 
     background: #000; 
-    user-select: none; 
-}
-
-.item-text {
-    flex: 1 !important;
-    text-align: left !important;
-    cursor: pointer;
+    cursor: pointer; 
+    display: block; 
     -webkit-tap-highlight-color: transparent; 
-}
-
-/* La singola stellina della lista */
-.item-star {
-    font-size: 22px !important;
-    color: #444 !important; 
-    cursor: pointer !important;
-    padding: 5px 10px !important;
-    margin-left: 20px !important; 
-    z-index: 1005 !important;
-    transition: color 0.1s;
-}
-
-.item-star.fav {
-    color: #ff1e00 !important; /* Diventa rossa quando è attiva */
+    user-select: none; 
 }
 
 .gear-item-active { 
@@ -314,7 +270,7 @@ body {
     cursor: pointer; 
 }
 
-/* Toast */
+/* Toast notifiche */
 .toast { 
     position: fixed; 
     top: 25%; 
@@ -332,7 +288,7 @@ body {
     transition: opacity 0.2s; 
 }
 
-/* Analisi e Canvas */
+/* Analisi Foto e Canvas */
 .upload-area { background: #111; border: 2px dashed #222; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0; }
 .btn-primary { background: #ff1e00; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .results-box { background: #111; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; display: flex; justify-content: space-around; }
