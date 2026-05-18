@@ -198,13 +198,41 @@ const ui = {
         }
     },
 
-    filterGear() {
+        filterGear() {
         const q = document.getElementById('searchGear').value.toLowerCase();
+        
+        // Se la ricerca è vuota, mostriamo tutto normalmente ripristinando i titoli
+        if (q === "") {
+            document.querySelectorAll('.gear-item').forEach(item => item.style.display = "block");
+            document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
+            return;
+        }
+
+        // Se l'utente sta cercando, nascondiamo i titoli delle categorie per pulizia
+        document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+
+        // Array di controllo per tenere traccia dei nomi già mostrati
+        const nomiMostrati = [];
+
         document.querySelectorAll('.gear-item').forEach(item => {
-            item.style.display = item.innerText.toLowerCase().includes(q) ? "block" : "none";
+            const nomeTesto = item.innerText.toLowerCase().trim();
+            const corrisponde = nomeTesto.includes(q);
+
+            if (corrisponde) {
+                // Se abbiamo già mostrato questo identico oggetto, nascondiamo il duplicato
+                if (nomiMostrati.includes(nomeTesto)) {
+                    item.style.display = "none";
+                } else {
+                    // È la prima volta che lo incontriamo: lo mostriamo e lo registriamo
+                    item.style.display = "block";
+                    nomiMostrati.push(nomeTesto);
+                }
+            } else {
+                item.style.display = "none";
+            }
         });
-        document.querySelectorAll('.category-title').forEach(c => c.style.display = q === "" ? "block" : "none");
     },
+
 
     clearSearch() { document.getElementById('searchGear').value = ""; this.filterGear(); },
 
