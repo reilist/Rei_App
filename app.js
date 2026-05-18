@@ -42,7 +42,7 @@ const ui = {
         
         const codiceID = "REI-" + this.deviceSeed;
         const chiaveCorretta = (parseInt(this.deviceSeed) * 3) + "PRO";
-        const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Production, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
+        const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Produzione, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
         
         const chiaveUtente = prompt(messaggio);
 
@@ -119,6 +119,7 @@ const ui = {
                     li.appendChild(starSpan);
                     
                     nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
+                    nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
                     nameSpan.ontouchend = function() { 
                         setTimeout(() => li.classList.remove('gear-item-active'), 80); 
                     };
@@ -129,6 +130,10 @@ const ui = {
                 }
                 lista.appendChild(li);
             }
+            
+            // Se i filtri erano già attivi all'apertura, riapplicali al volo
+            this.filterGear();
+            
         } catch (e) { 
             console.error(e);
             this.showToast("Errore: File non trovato");
@@ -201,7 +206,7 @@ const ui = {
         }
     },
 
-        filterGear() {
+    filterGear() {
         const q = document.getElementById('searchGear').value.toLowerCase().trim();
         
         // Se sia la ricerca che la stella master sono disattivate, mostra tutto normalmente
@@ -217,7 +222,7 @@ const ui = {
         const nomiMostrati = [];
 
         document.querySelectorAll('.gear-item').forEach(item => {
-            // Estrae solo il testo pulito dal contenitore corretto .item-text
+            // Estrae il testo pulito leggendo solo il nameSpan interno (.item-text)
             const textSpan = item.querySelector('.item-text');
             if (!textSpan) return;
             
@@ -234,7 +239,7 @@ const ui = {
 
             // Applica l'azione coordinata: mostra solo se supera ENTRAMBI i filtri
             if (passaFiltroTesto && passaFiltroStella) {
-                // Filtro anti-duplicati
+                // Filtro anti-duplicati basato sul nome pulito
                 if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
                 } else {
@@ -246,7 +251,6 @@ const ui = {
             }
         });
     },
-
 
     clearSearch() { 
         document.getElementById('searchGear').value = ""; 
@@ -275,7 +279,9 @@ const ui = {
         }
         localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));
         this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");
-        if (this.isStarFilterActive) this.applyStarFilter();
+        
+        // Forza l'aggiornamento dei filtri al clic
+        this.filterGear();
     },
 
     toggleStarFilter() {
@@ -285,16 +291,12 @@ const ui = {
             btn.innerText = this.isStarFilterActive ? "★" : "☆";
             btn.classList.toggle('active', this.isStarFilterActive);
         }
-        this.applyStarFilter();
-    },
-
-            applyStarFilter() {
         this.filterGear();
     },
 
     analyzeImage() {
         const input = document.getElementById('imageInput');
-        if (input.files && input.files) {
+        if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById('image-preview').src = e.target.result;
@@ -315,61 +317,4 @@ const ui = {
                     }
                     const total = leftLum + rightLum;
                     const diff = Math.abs(leftLum - rightLum) / total;
-                    let pos = { nome: "Frontale", x: 0.5, y: 0.85 };
-                    if (diff > 0.03) {
-                        if (leftLum > rightLum) pos = { nome: "45° Laterale SX", x: 0.25, y: 0.75 };
-                        else pos = { nome: "45° Laterale DX", x: 0.75, y: 0.75 };
-                    }
-                    document.getElementById('res-hardness').innerText = "Rilevata";
-                    document.getElementById('res-angle').innerText = pos.nome;
-                    document.getElementById('analysis-results').classList.remove('hidden');
-                    this.drawDiagram(pos);
-                };
-            };
-            reader.readAsDataURL(input.files);
-        }
-    },
-
-    togglePhotoZoom() {
-        const img = document.getElementById('image-preview');
-        img.classList.toggle('photo-fullscreen');
-        const isFull = img.classList.contains('photo-fullscreen');
-        document.querySelector('.results-box').style.display = isFull ? "none" : "flex";
-        document.getElementById('lightingDiagram').style.display = isFull ? "none" : "block";
-    },
-
-    toggleMirror() {
-        this.isMirrored = !this.isMirrored;
-        this.analyzeImage();
-    },
-
-    drawDiagram(pos) {
-        const canvas = document.getElementById('lightingDiagram');
-        const ctx = canvas.getContext('2d');
-        const [w, h] = [canvas.width, canvas.height];
-        ctx.clearRect(0, 0, w, h);
-        if (!pos) pos = { x: 0.25, y: 0.75 };
-        ctx.save();
-        if (this.isMirrored) { ctx.translate(w, 0); ctx.scale(-1, 1); }
-        const sx = w / 2;
-        const sy = h / 2 - 20;
-        const lx = w * pos.x;
-        const ly = h * (1 - pos.y + 0.5);
-        const angle = Math.atan2(sy - ly, sx - lx);
-        const grad = ctx.createRadialGradient(lx, ly, 0, lx, ly, 160);
-        grad.addColorStop(0, 'rgba(255, 30, 0, 0.5)'); grad.addColorStop(1, 'rgba(255, 30, 0, 0)');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(lx, ly);
-        ctx.lineTo(lx+160*Math.cos(angle-0.4), ly+160*Math.sin(angle-0.4));
-        ctx.lineTo(lx+160*Math.cos(angle+0.4), ly+160*Math.sin(angle+0.4));
-        ctx.fill();
-        ctx.fillStyle = "white";
-        ctx.beginPath(); ctx.ellipse(sx, sy - 5, 18, 8, 0, 0, 7); ctx.fill();
-        ctx.beginPath(); ctx.arc(sx, sy + 5, 10, 0, 7); ctx.fill();
-        ctx.save(); ctx.translate(lx, ly); ctx.rotate(angle);
-        ctx.fillStyle = "#ff1e00"; ctx.fillRect(-12, -8, 24, 16);
-        ctx.strokeStyle = "#ff1e00"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(12, 0, 15, -1.5, 1.5); ctx.stroke();
-        ctx.restore(); ctx.restore();
-    }
-};
-
-window.onload = () => ui.showSection('dashboard');
+                    let pos = { nome: "Frontale", x: 0.5, y: 0.8
