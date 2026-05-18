@@ -276,47 +276,7 @@ const ui = {
         this.applyStarFilter();
     },
 
-                applyStarFilter() {
-        const q = document.getElementById('searchGear').value.toLowerCase();
-        
-        if (!this.isStarFilterActive && q === "") {
-            this.filterGear();
-            return;
-        }
-
-        // Nascondiamo i titoli di categoria
-        document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
-
-        const nomiMostrati = [];
-
-        document.querySelectorAll('.gear-item').forEach(item => {
-            // 1. Legge il testo per la barra di ricerca in modo sicuro
-            const textSpan = item.querySelector('.item-text');
-            const nomeTesto = textSpan ? textSpan.innerText.trim() : item.innerText.trim();
-            const nomeInMinuscolo = nomeTesto.toLowerCase();
-            
-            // 2. Controlla il testo digitato
-            const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
-
-            // 3. IL TUO COMANDO DIRETTO SUL COLORE: Controlla se la stellina ha la classe "fav" (rossa)
-            const star = item.querySelector('.item-star');
-            const haStellaRossa = star ? star.classList.contains('fav') : false;
-            const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;
-
-            // 4. Mostra o nasconde la riga
-            if (passaFiltroTesto && passaFiltroStella) {
-                if (nomiMostrati.includes(nomeInMinuscolo)) {
-                    item.style.display = "none";
-                } else {
-                    item.style.display = "flex";
-                    nomiMostrati.push(nomeInMinuscolo);
-                }
-            } else {
-                item.style.display = "none";
-            }
-        });
-    },
-
+                applyStarFilter() {const q = document.getElementById('searchGear').value.toLowerCase();if (!this.isStarFilterActive && q === "") {this.filterGear();return;}document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");const nomiMostrati = [];document.querySelectorAll('.gear-item').forEach(item => {// 1. Controlla il testo digitato nella barra di ricercaconst nomeInMinuscolo = item.innerText.toLowerCase().trim();const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);// 2. CONTROLLO DIRETTO SULLA STELLA ROSSA (.fav)const haStellaRossa = item.querySelector('.item-star.fav') !== null;const passaFiltroStella = !this.isStarFilterActive || haStellaRossa;// 3. Nascondi o mostra la rigaif (passaFiltroTesto && passaFiltroStella) {if (nomiMostrati.includes(nomeInMinuscolo)) {item.style.display = "none";} else {item.style.display = "flex";nomiMostrati.push(nomeInMinuscolo);}} else {item.style.display = "none";}});},
 
 
     analyzeImage() {
