@@ -297,3 +297,65 @@ body {
 #zoom-label { font-size: 10px; color: #555; margin-top: 4px; }
 .photo-fullscreen { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; max-width: 100vw !important; z-index: 9999; object-fit: contain; background: black; }
 canvas { display: block; margin: 0 auto; background: #000; }
+
+/* --- SISTEMA PREFERITI CON STELLINA (DEFINITIVO) --- */
+
+/* Forza il contenitore della ricerca a fare da base per le coordinate */
+.search-container {
+    position: relative !important;
+    width: 100% !important;
+}
+
+/* Allarga lo spazio interno dell'input per non far coprire il testo dalle icone */
+.search-container input {
+    padding-right: 70px !important;
+}
+
+/* Stella madre nella barra di ricerca (A DESTRA) */
+.star-search-btn {
+    position: absolute !important;
+    right: 40px !important; /* Spinta a destra, prima della X */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #fff !important; /* Bianca di default sullo sfondo nero */
+    font-size: 20px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    z-index: 2010 !important; /* Più alta dell'input di testo */
+    transition: color 0.2s;
+}
+
+/* Diventa ROSSA Profoto quando il filtro preferiti è attivo */
+.star-search-btn.active {
+    color: #ff1e00 !important; 
+}
+
+/* Allineamento riga prodotto: testo a sinistra, stella a destra */
+.gear-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* Il testo occupa tutto lo spazio a sinistra */
+.item-text {
+    flex: 1 !important;
+    text-align: left !important;
+}
+
+/* La singola stellina della lista */
+.item-star {
+    font-size: 22px !important;
+    color: #444 !important; /* Grigio scuro da spenta */
+    cursor: pointer !important;
+    padding: 5px 10px !important;
+    margin-left: 20px !important; /* Crea lo spazio di sicurezza di un paio di caratteri */
+    z-index: 1005 !important;
+    transition: color 0.1s;
+}
+
+/* Diventa ROSSA Profoto quando la selezioni come preferita */
+.item-star.fav {
+    color: #ff1e00 !important; 
+}

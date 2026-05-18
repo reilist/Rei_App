@@ -110,13 +110,14 @@ const ui = {
                 const li = document.createElement('li');
                 li.innerText = voce;
 
-                                if (prossima.toLowerCase() === "descrizione") {
+                                                if (prossima.toLowerCase() === "descrizione") {
                     li.className = "category-title";
                 } else {
                     li.className = "gear-item";
                     
-                    // 1. Crea il testo del nome dell'attrezzo
+                    // 1. Crea il contenitore del testo per evitare sdoppiamenti
                     const nameSpan = document.createElement('span');
+                    nameSpan.className = "item-text";
                     nameSpan.innerText = voce;
                     nameSpan.onclick = () => this.addItem(voce);
                     li.appendChild(nameSpan);
@@ -129,12 +130,12 @@ const ui = {
                     
                     // Clic sulla stellina (attiva/disattiva preferito)
                     starSpan.onclick = (e) => {
-                        e.stopPropagation(); // Evita di aggiungere l'oggetto alla lista noleggio per sbaglio
+                        e.stopPropagation(); // Evita di aggiungere l'oggetto alla lista noleggio
                         this.toggleFavorite(voce, starSpan);
                     };
                     li.appendChild(starSpan);
                     
-                    // 3. IL TUO LAMPO ROSSO ISTANTANEO (Spostato sul testo dell'oggetto)
+                    // 3. Il tuo lampo rosso istantaneo (Spostato sul testo dell'oggetto)
                     nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
                     nameSpan.ontouchend = function() { 
                         setTimeout(() => li.classList.remove('gear-item-active'), 80); 
@@ -145,6 +146,7 @@ const ui = {
                     }
                 }
                 lista.appendChild(li);
+
 
             }
         } catch (e) { 
