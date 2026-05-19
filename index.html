@@ -13,6 +13,7 @@
     <section id="dashboard-section" class="section">
         <div class="logo-container">
             <img src="logo.png" alt="REI Logo" class="main-logo">
+            <h1 id="app-title" style="color: #fff; font-size: 18px; margin-top: 10px; font-weight: bold; letter-spacing: 1px;">REI LIGHT</h1>
         </div>
         <div class="menu-grid">
             <button class="menu-btn" onclick="ui.showSection('inventory')">📝 CREA LISTA</button>
@@ -32,14 +33,15 @@
             <div class="db-selector-grid">
                 <button class="btn-db active" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION 🔒</button>
-                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITALE 🔒</button>
-                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PROD. 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITAL 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PRODUZ. 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv?v=2')">🔋 TUTTO 🔒</button>
             </div>
 
             
             <div class="search-container">
                 <input type="text" id="searchGear" placeholder="Cerca nel database attivo..." oninput="ui.filterGear()">
+<span class="star-search-btn" id="starFilterBtn" onclick="ui.toggleStarFilter()">☆</span>
                 <span class="clear-search" onclick="ui.clearSearch()">×</span>
             </div>
         </div>

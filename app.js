@@ -6,6 +6,8 @@ const ui = {
     deviceSeed: localStorage.getItem('rei_device_seed'),
     currentDB: 'magazzino_studio.csv',
 
+// Memoria dei preferiti e stato del filtrofavorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],isStarFilterActive: false,
+
     showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
         document.getElementById(id + '-section').classList.remove('hidden');
@@ -53,6 +55,9 @@ const ui = {
         if (chiaveUtente === chiaveCorretta) {
             localStorage.setItem('rei_pro_unlocked', 'true');
             this.isUnlocked = true;
+
+// Cambia il titolo in PRO all'istanteconst title = document.getElementById('app-title');if (title) title.innerText = "REI PRO";
+
             alert("✅ Sblocco riuscito! Tutti i database sono ora attivi.");
             
             // Nasconde il tasto dorato e pulisce i lucchetti dai pulsanti
@@ -326,4 +331,5 @@ const ui = {
     }
 };
 
-window.onload = () => ui.showSection('dashboard');
+window.onload = () => {ui.showSection('dashboard');// Controlla se l'app è sbloccata all'avvio e imposta il nome correttoconst title = document.getElementById('app-title');if (title) title.innerText = ui.isUnlocked ? "REI PRO" : "REI LIGHT";
+};

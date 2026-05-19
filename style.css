@@ -118,6 +118,12 @@ body {
     white-space: nowrap; 
     min-width: 68px; 
     cursor: pointer; 
+
+/* NUOVI COMANDI DI CENTRATURA PERFETTA */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
 }
 
 .btn-db.active { 
@@ -297,3 +303,45 @@ body {
 #zoom-label { font-size: 10px; color: #555; margin-top: 4px; }
 .photo-fullscreen { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; max-width: 100vw !important; z-index: 9999; object-fit: contain; background: black; }
 canvas { display: block; margin: 0 auto; background: #000; }
+
+/* --- POSIZIONAMENTO STELLA NELLA RICERCA --- */
+
+/* Forza il contenitore della ricerca a fare da base per le icone */
+.search-container {
+    position: relative !important;
+    width: 100% !important;
+}
+
+/* Lascia lo spazio a destra dentro la barra per non far coprire il testo dalle icone */
+.search-container input {
+    padding-right: 75px !important;
+}
+
+/* Stella master nella barra di ricerca (A DESTRA, prima della X) */
+.star-search-btn {
+    position: absolute !important;
+    right: 42px !important; /* Spinta a destra, di fianco alla X */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #fff !important; /* Bianca per risaltare sul nero */
+    font-size: 20px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    z-index: 2010 !important; /* Sopra la casella di testo */
+    transition: color 0.2s;
+}
+
+/* Diventa ROSSA quando il filtro preferiti si attiva */
+.star-search-btn.active {
+    color: #ff1e00 !important;
+}
+
+/* Regola la X di cancellazione per non sovrapporsi alla stella */
+.clear-search {
+    position: absolute !important;
+    right: 15px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 2010 !important;
+}
+
