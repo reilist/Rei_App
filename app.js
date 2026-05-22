@@ -1,12 +1,9 @@
 const ui = {
     selectedItems: [],
     isMirrored: false,
-    // RIGHE DA AGGIUNGERE QUI SOTTO:
     isUnlocked: localStorage.getItem('rei_pro_unlocked') === 'true',
     deviceSeed: localStorage.getItem('rei_device_seed'),
     currentDB: 'magazzino_studio.csv',
-
-// Memoria dei preferiti e stato del filtrofavorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],isStarFilterActive: false,
 
     showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
@@ -14,13 +11,11 @@ const ui = {
         if (id === 'inventory') this.caricaMagazzino();
     },
 
-        cambiaDatabase(nomeFile) {
-        // BLOCCO REALE: Se non è lo studio e l'app è bloccata, avvia la procedura PRO
+    cambiaDatabase(nomeFile) {
         if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
             this.proponiSblocco();
             return;
         }
-
         this.currentDB = nomeFile;
         document.querySelectorAll('.btn-db').forEach(btn => {
             if (btn.getAttribute('onclick').includes(nomeFile)) {
@@ -30,11 +25,10 @@ const ui = {
             }
         });
         this.caricaMagazzino();
-        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').replace('?v=2','').toUpperCase());
+        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').toUpperCase());
     },
 
     proponiSblocco() {
-        // Recupera o genera un ID unico a 4 cifre fisso per questo iPhone
         if (!this.deviceSeed) {
             this.deviceSeed = localStorage.getItem('rei_device_seed');
             if (!this.deviceSeed) {
@@ -42,33 +36,25 @@ const ui = {
                 localStorage.setItem('rei_device_seed', this.deviceSeed);
             }
         }
-        
         const codiceID = "REI-" + this.deviceSeed;
-        
-        // ALGORITMO SEGRETO: Il numero dell'ID moltiplicato per 3 + "PRO"
         const chiaveCorretta = (parseInt(this.deviceSeed) * 3) + "PRO";
-
         const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Produzione, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
-        
         const chiaveUtente = prompt(messaggio);
-
         if (chiaveUtente === chiaveCorretta) {
             localStorage.setItem('rei_pro_unlocked', 'true');
             this.isUnlocked = true;
-
-// Cambia il titolo in PRO all'istanteconst title = document.getElementById('app-title');if (title) title.innerText = "REI PRO";
-
+            // Cambia il titolo nella Home all'istante
+            const title = document.getElementById('app-title');
+            if (title) {
+            title.innerText = "REI PRO";
+        }
             alert("✅ Sblocco riuscito! Tutti i database sono ora attivi.");
-            
-            // Nasconde il tasto dorato e pulisce i lucchetti dai pulsanti
             const badge = document.getElementById('pro-badge');
             if (badge) badge.style.display = "none";
-            
             document.querySelectorAll('.btn-db').forEach(btn => {
                 btn.innerText = btn.innerText.replace(' 🔒', '').trim();
             });
-            
-            this.cambiaDatabase('magazzino_studio.csv'); // Rinfresca l'app
+            this.cambiaDatabase('magazzino_studio.csv');
         } else if (chiaveUtente) {
             alert("❌ Chiave errata. Riprova o contatta l'assistenza.");
         }
@@ -76,14 +62,10 @@ const ui = {
 
     async caricaMagazzino() {
         try {
-            // Se l'app è già PRO, nascondiamo il pulsante "Passa a PRO"
             const badge = document.getElementById('pro-badge');
             if (this.isUnlocked && badge) {
                 badge.style.display = "none";
             }
-
-
-                        // --- NUOVO CONTROLLO: Se l'app è sbloccata, togliamo i lucchetti dai pulsanti ---
             if (this.isUnlocked) {
                 document.querySelectorAll('.btn-db').forEach(btn => {
                     if (btn.innerText.includes('🔒')) {
@@ -91,37 +73,25 @@ const ui = {
                     }
                 });
             }
-
-            // --- FINE NUOVO CONTROLLO ---
-
             const resp = await fetch(this.currentDB);
             const testo = await resp.text();
             const righe = testo.split('\n');
             const lista = document.getElementById('gear-list');
             if (!lista) return;
-            
             lista.innerHTML = "";
-
             for (let i = 0; i < righe.length; i++) {
                 let voce = righe[i].replace(/"/g, '').trim();
                 let prossima = righe[i + 1] ? righe[i + 1].replace(/"/g, '').trim() : "";
-
                 if (voce === "" || voce.toLowerCase() === "descrizione") continue;
-
                 const li = document.createElement('li');
-                li.innerText = voce;
-
                 if (prossima.toLowerCase() === "descrizione") {
                     li.className = "category-title";
+                    li.innerText = voce;
                 } else {
                     li.className = "gear-item";
-                    
-                    // Lampo rosso istantaneo per iPhone
+                    li.innerText = voce;
                     li.ontouchstart = function() { this.classList.add('gear-item-active'); };
-                    li.ontouchend = function() { 
-                        setTimeout(() => this.classList.remove('gear-item-active'), 80); 
-                    };
-                    
+                    li.ontouchend = function() { setTimeout(() => this.classList.remove('gear-item-active'), 80); };
                     if (this.selectedItems.find(item => item.nome === voce)) {
                         li.classList.add('selected');
                     }
@@ -129,7 +99,7 @@ const ui = {
                 }
                 lista.appendChild(li);
             }
-        } catch (e) { 
+        } catch (e) {
             console.error(e);
             this.showToast("Errore: File non trovato");
         }
@@ -157,15 +127,11 @@ const ui = {
         const summary = document.getElementById('added-items-summary');
         const count = document.getElementById('count');
         if (count) count.innerText = this.selectedItems.length;
-
         if (this.selectedItems.length === 0) {
             summary.innerText = "Nessun elemento selezionato";
             return;
         }
-
-        // Mostra gli ultimi elementi scelti in cima nel footer
         const visualList = [...this.selectedItems].reverse();
-
         summary.innerHTML = visualList.map(i => `
             <div class="summary-tag">
                 ${i.nome} <b>x${i.qta}</b>
@@ -180,11 +146,9 @@ const ui = {
             this.showToast("Seleziona almeno un articolo!");
             return;
         }
-        // Condivisione mantiene l'ordine di selezione originale
-        const testo = "Lista Attrezzatura REI:\n\n" + 
-            this.selectedItems.map(i => `${i.qta}x ${i.nome}`).join('\n');
+        const testo = "Lista Attrezzatura REI:\n\n" + this.selectedItems.map(i => `${i.qta}x ${i.nome}`).join('\n');
         if (navigator.share) {
-            try { await navigator.share({ title: 'Lista REI', text: testo }); } 
+            try { await navigator.share({ title: 'Lista REI', text: testo }); }
             catch (e) { this.fallbackMail(testo); }
         } else { this.fallbackMail(testo); }
     },
@@ -203,32 +167,22 @@ const ui = {
         }
     },
 
-        filterGear() {
+    filterGear() {
         const q = document.getElementById('searchGear').value.toLowerCase();
-        
-        // Se la ricerca è vuota, mostriamo tutto normalmente ripristinando i titoli
         if (q === "") {
             document.querySelectorAll('.gear-item').forEach(item => item.style.display = "block");
             document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
             return;
         }
-
-        // Se l'utente sta cercando, nascondiamo i titoli delle categorie per pulizia
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
-
-        // Array di controllo per tenere traccia dei nomi già mostrati
         const nomiMostrati = [];
-
         document.querySelectorAll('.gear-item').forEach(item => {
             const nomeTesto = item.innerText.toLowerCase().trim();
             const corrisponde = nomeTesto.includes(q);
-
             if (corrisponde) {
-                // Se abbiamo già mostrato questo identico oggetto, nascondiamo il duplicato
                 if (nomiMostrati.includes(nomeTesto)) {
                     item.style.display = "none";
                 } else {
-                    // È la prima volta che lo incontriamo: lo mostriamo e lo registriamo
                     item.style.display = "block";
                     nomiMostrati.push(nomeTesto);
                 }
@@ -238,8 +192,10 @@ const ui = {
         });
     },
 
-
-    clearSearch() { document.getElementById('searchGear').value = ""; this.filterGear(); },
+    clearSearch() {
+        document.getElementById('searchGear').value = "";
+        this.filterGear();
+    },
 
     showToast(msg) {
         const t = document.getElementById('toast');
@@ -331,5 +287,10 @@ const ui = {
     }
 };
 
-window.onload = () => {ui.showSection('dashboard');// Controlla se l'app è sbloccata all'avvio e imposta il nome correttoconst title = document.getElementById('app-title');if (title) title.innerText = ui.isUnlocked ? "REI PRO" : "REI LIGHT";
+window.onload = () => {
+    ui.showSection('dashboard');
+    const title = document.getElementById('app-title');
+    if (title) {
+        title.innerText = ui.isUnlocked ? "REI PRO" : "REI LITE";
+    }
 };

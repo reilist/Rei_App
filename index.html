@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="apple-touch-icon" href="logo.png">
-    <title>REI App - Pro</title>
+    <title>REI App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
     <section id="dashboard-section" class="section">
         <div class="logo-container">
             <img src="logo.png" alt="REI Logo" class="main-logo">
-            <h1 id="app-title" style="color: #fff; font-size: 18px; margin-top: 10px; font-weight: bold; letter-spacing: 1px;">REI LIGHT</h1>
+            <h1 id="app-title" style="color: #ffffff; font-size: 18px; margin-top: 10px; font-weight: bold; letter-spacing: 1px;">REI LITE</h1>
         </div>
         <div class="menu-grid">
             <button class="menu-btn" onclick="ui.showSection('inventory')">📝 CREA LISTA</button>
@@ -22,35 +22,32 @@
         </div>
     </section>
 
+
     <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
     <section id="inventory-section" class="section hidden">
-                <!-- Testata Fissa in Alto -->
         <div class="sticky-header">
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0;">← Indietro</div><!-- PULSANTE PASSA A PRO (Appare solo se bloccato) --><button id="pro-badge" class="btn-pro-badge" onclick="ui.proponiSblocco()">⭐ PASSA A PRO</button></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0;">← Indietro</div>
+                <button id="pro-badge" class="btn-pro-badge" onclick="ui.proponiSblocco()">⭐ PASSA A PRO</button>
+            </div>
             
-                        <!-- 5 Pulsanti: Icona - Nome - Lucchetto -->
             <div class="db-selector-grid">
                 <button class="btn-db active" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITAL 🔒</button>
                 <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PRODUZ. 🔒</button>
-                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv?v=2')">🔋 TUTTO 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv')">🔋 TUTTO 🔒</button>
             </div>
 
-            
+
             <div class="search-container">
                 <input type="text" id="searchGear" placeholder="Cerca nel database attivo..." oninput="ui.filterGear()">
-<span class="star-search-btn" id="starFilterBtn" onclick="ui.toggleStarFilter()">☆</span>
                 <span class="clear-search" onclick="ui.clearSearch()">×</span>
             </div>
         </div>
 
-
-        <!-- Lista prodotti (con margine per non finire sotto la testata fissa) -->
         <ul id="gear-list"></ul>
 
-        <!-- Footer Fisso in Basso -->
         <div id="selection-footer" class="selection-footer">
             <div class="footer-header">
                 <h3>Lista Noleggio (<span id="count">0</span>)</h3>
@@ -69,26 +66,20 @@
     <section id="analysis-section" class="section hidden">
         <div class="back-btn" onclick="ui.showSection('dashboard')">← Indietro</div>
         <h2>Analisi Reference</h2>
-        
         <div class="upload-area">
             <input type="file" id="imageInput" accept="image/*" hidden onchange="ui.analyzeImage()">
             <button class="btn-primary" onclick="document.getElementById('imageInput').click()">Carica Foto</button>
         </div>
-        
         <div id="analysis-results" class="hidden">
             <div class="results-box">
                 <p>Durezza: <span id="res-hardness">-</span></p>
                 <p>Angolo: <span id="res-angle">-</span></p>
             </div>
-
             <button class="btn-clear" onclick="ui.toggleMirror()" style="margin: 10px auto; display: block;">🔄 Specchia Schema (L/R)</button>
-
-            <!-- Miniatura con Zoom -->
             <div id="thumb-container" onclick="ui.togglePhotoZoom()">
                 <img id="image-preview" src="" alt="Anteprima">
                 <p id="zoom-label">Tocca per ingrandire</p>
             </div>
-
             <canvas id="lightingDiagram" width="300" height="300"></canvas>
         </div>
     </section>
