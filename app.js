@@ -258,14 +258,60 @@ const ui = {
         this.filterGear();
     },
 
-                toggleStarFilter() {
+                    toggleStarFilter() {
         this.isStarFilterActive = !this.isStarFilterActive;
         const btn = document.getElementById('starFilterBtn');
         if (btn) {
             btn.innerText = this.isStarFilterActive ? "★" : "☆";
             btn.classList.toggle('active', this.isStarFilterActive);
         }
-        this.filterGear();
+        
+        // SE ATTIVI LA STELLA MASTER: Ignora i magazzini e crea la schermata unica globale
+        if (this.isStarFilterActive) {
+            const lista = document.getElementById('gear-list');
+            if (!lista) return;
+            
+            // Svuota lo schermo e nasconde i titoli delle categorie vecchie
+            lista.innerHTML = "";
+            document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
+            
+            if (this.favorites.length === 0) {
+                lista.innerHTML = "<li style='text-align:center; padding:20px; color:#666;'>Nessun preferito salvato</li>";
+                return;
+            }
+            
+            // Prende i preferiti salvati in memoria e li reinstalla tutti insieme a schermo
+            this.favorites.forEach(voce => {
+                const li = document.createElement('li');
+                li.className = "gear-item";
+                
+                const n = document.createElement('span');
+                n.className = "item-text";
+                n.innerText = voce;
+                n.onclick = () => this.addItem(voce);
+                li.appendChild(n);
+                
+                const s = document.createElement('span');
+                s.className = "item-star fav";
+                s.innerText = "★";
+                s.onclick = (e) => {
+                    e.stopPropagation();
+                    this.toggleFavorite(voce, s);
+                };
+                li.appendChild(s);
+                
+                n.ontouchstart = function() { li.classList.add('gear-item-active'); };
+                n.ontouchend = function() { setTimeout(() => li.classList.remove('gear-item-active'), 80); };
+                
+                if (this.selectedItems.find(item => item.nome === voce)) {
+                    li.classList.add('selected');
+                }
+                lista.appendChild(li);
+            });
+        } else {
+            // SE DISATTIVI LA STELLA MASTER: Ricarica subito il magazzino in cui ti trovavi
+            this.caricaMagazzino();
+        }
     },
 
     showToast(msg) {
