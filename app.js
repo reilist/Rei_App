@@ -91,16 +91,37 @@ const ui = {
                 if (prossima.toLowerCase() === "descrizione") {
                     li.className = "category-title";
                     li.innerText = voce;
+                
                 } else {
                     li.className = "gear-item";
-                    li.innerText = voce;
-                    li.ontouchstart = function() { this.classList.add('gear-item-active'); };
-                    li.ontouchend = function() { setTimeout(() => this.classList.remove('gear-item-active'), 80); };
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = "item-text";
+                    nameSpan.innerText = voce;
+                    nameSpan.onclick = () => this.addItem(voce);
+                    li.appendChild(nameSpan);
+                    
+                    const starSpan = document.createElement('span');
+                    starSpan.className = "item-star";
+                    starSpan.innerText = this.favorites.includes(voce) ? "★" : "☆";
+                    if (this.favorites.includes(voce)) {
+                        starSpan.classList.add('fav');
+                    }
+                    
+                    starSpan.onclick = (e) => {
+                        e.stopPropagation();
+                        this.toggleFavorite(voce, starSpan);
+                    };
+                    li.appendChild(starSpan);
+                    
+                    nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
+                    nameSpan.ontouchend = function() { setTimeout(() => li.classList.remove('gear-item-active'), 80); };
+                    
                     if (this.selectedItems.find(item => item.nome === voce)) {
                         li.classList.add('selected');
                     }
-                    li.onclick = () => this.addItem(voce);
                 }
+
                 lista.appendChild(li);
             }
         } catch (e) {
@@ -171,24 +192,40 @@ const ui = {
         }
     },
 
-    filterGear() {
-        const q = document.getElementById('searchGear').value.toLowerCase();
-        if (q === "") {
-            document.querySelectorAll('.gear-item').forEach(item => item.style.display = "block");
+        filterGear() {
+        const searchInput = document.getElementById('searchGear');
+        const q = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        const starBtn = document.getElementById('starFilterBtn');
+        const masterStellaAttiva = starBtn ? starBtn.classList.contains('active') : false;
+        
+        if (q === "" && !masterStellaAttiva) {
+            document.querySelectorAll('.gear-item').forEach(item => item.style.display = "flex");
             document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
             return;
         }
+        
         document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
         const nomiMostrati = [];
+        
         document.querySelectorAll('.gear-item').forEach(item => {
-            const nomeTesto = item.innerText.toLowerCase().trim();
-            const corrisponde = nomeTesto.includes(q);
-            if (corrisponde) {
-                if (nomiMostrati.includes(nomeTesto)) {
+            // Estrae solo il testo pulito dallo span interno per la ricerca scritta
+            const textSpan = item.querySelector('.item-text');
+            const nomeTesto = textSpan ? textSpan.innerText.trim() : item.innerText.trim();
+            const nomeInMinuscolo = nomeTesto.toLowerCase();
+            const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
+            
+            // Controlla se la stellina di QUESTA riga ha la classe rossa 'fav'
+            const starSpan = item.querySelector('.item-star');
+            const haStellaRossa = starSpan ? starSpan.classList.contains('fav') : false;
+            const passaFiltroStella = !masterStellaAttiva || haStellaRossa;
+            
+            // Nasconde o mostra l'elemento solo se supera ENTRAMBI i controlli
+            if (passaFiltroTesto && passaFiltroStella) {
+                if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
                 } else {
-                    item.style.display = "block";
-                    nomiMostrati.push(nomeTesto);
+                    item.style.display = "flex";
+                    nomiMostrati.push(nomeInMinuscolo);
                 }
             } else {
                 item.style.display = "none";
@@ -196,8 +233,38 @@ const ui = {
         });
     },
 
+                toggleFavorite(nome, element) {
+        // Se l'utente non è PRO e prova a usare le stelle fuori dal magazzino Studio, blocca il tocco
+        if (!this.isUnlocked && this.currentDB !== 'magazzino_studio.csv') {
+            this.showToast("🔒 Passa alla versione PRO per salvare i preferiti in questo database");
+            return;
+        }
+        if (this.favorites.includes(nome)) {
+            this.favorites = this.favorites.filter(f => f !== nome);
+            element.innerText = "☆";
+            element.classList.remove('fav');
+        } else {
+            this.favorites.push(nome);
+            element.innerText = "★";
+            element.classList.add('fav');
+        }
+        localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));
+        this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");
+        this.filterGear();
+    },
+
     clearSearch() {
         document.getElementById('searchGear').value = "";
+        this.filterGear();
+    },
+
+                toggleStarFilter() {
+        this.isStarFilterActive = !this.isStarFilterActive;
+        const btn = document.getElementById('starFilterBtn');
+        if (btn) {
+            btn.innerText = this.isStarFilterActive ? "★" : "☆";
+            btn.classList.toggle('active', this.isStarFilterActive);
+        }
         this.filterGear();
     },
 
