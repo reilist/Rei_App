@@ -4,6 +4,10 @@ const ui = {
     isUnlocked: localStorage.getItem('rei_pro_unlocked') === 'true',
     deviceSeed: localStorage.getItem('rei_device_seed'),
     currentDB: 'magazzino_studio.csv',
+    
+    // Registro per la memoria dei preferiti e stato del filtro
+    favorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],
+    isStarFilterActive: false,
 
     showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
