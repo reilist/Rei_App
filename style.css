@@ -111,7 +111,14 @@ body {
     white-space: nowrap; 
     min-width: 68px; 
     cursor: pointer; 
+    
+    /* COMANDI PER LA CENTRATURA FLUIDA E PERFETTA */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
 }
+
 
 .btn-db.active { 
     background: #ff1e00 !important; 
