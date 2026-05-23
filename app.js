@@ -1,133 +1,93 @@
 const ui = {
-    selectedItems: [],
-    isMirrored: false,
-    isUnlocked: localStorage.getItem('rei_pro_unlocked') === 'true',
-    deviceSeed: localStorage.getItem('rei_device_seed'),
     currentDB: 'magazzino_studio.csv',
-    
-    // Registro per la memoria dei preferiti e stato del filtro
+    selectedItems: [],
     favorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],
+    isUnlocked: false,
     isStarFilterActive: false,
 
     showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-        document.getElementById(id + '-section').classList.remove('hidden');
-        if (id === 'inventory') this.caricaMagazzino();
+        const target = document.getElementById(id + '-section');
+        if (target) target.classList.remove('hidden');
+        
+        if (id === 'inventory') {
+            this.caricaMagazzino();
+            const modal = document.getElementById('job-modal');
+            if (modal) {
+                modal.style.display = "flex";
+                const input = document.getElementById('job-name-input');
+                if (input) input.value = ""; // <-- FORZATURA CAMPO VUOTO
+            }
+        }
+    },
+
+    confermaNomeLavoro() {
+        const input = document.getElementById('job-name-input');
+        const nomeLavoro = input ? input.value.trim() : "";
+        localStorage.setItem('rei_job_name', nomeLavoro);
+        const modal = document.getElementById('job-modal');
+        if (modal) modal.style.display = "none";
     },
 
     cambiaDatabase(nomeFile) {
-        if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
-            this.proponiSblocco();
-            return;
-        }
         this.currentDB = nomeFile;
         document.querySelectorAll('.btn-db').forEach(btn => {
-            if (btn.getAttribute('onclick').includes(nomeFile)) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            if (btn.getAttribute('onclick').includes(nomeFile)) btn.classList.add('active');
+            else btn.classList.remove('active');
         });
         this.caricaMagazzino();
-        this.showToast("Caricato: " + nomeFile.replace('magazzino_', '').replace('.csv', '').toUpperCase());
     },
 
-    proponiSblocco() {
-        if (!this.deviceSeed) {
-            this.deviceSeed = localStorage.getItem('rei_device_seed');
-            if (!this.deviceSeed) {
-                this.deviceSeed = Math.floor(Math.random() * 8999 + 1000);
-                localStorage.setItem('rei_device_seed', this.deviceSeed);
-            }
-        }
-        const codiceID = "REI-" + this.deviceSeed;
-        const chiaveCorretta = (parseInt(this.deviceSeed) * 3) + "PRO";
-        const messaggio = `🔒 VERSIONE PRO BLOCCATA\n\nPer sbloccare tutti i database (Location, Digitale, Produzione, Tutto), effettua la donazione di 1,99€.\n\nInvia questo codice ID unico con la donazione:\n👉 ${codiceID}\n\nInserisci la chiave di sblocco ricevuta:`;
-        const chiaveUtente = prompt(messaggio);
-        if (chiaveUtente === chiaveCorretta) {
-            localStorage.setItem('rei_pro_unlocked', 'true');
-            this.isUnlocked = true;
-            // Cambia il titolo nella Home all'istante
-            const title = document.getElementById('app-title');
-            if (title) {
-            title.innerText = "REI PRO";
-        }
-            alert("✅ Sblocco riuscito! Tutti i database sono ora attivi.");
-            const badge = document.getElementById('pro-badge');
-            if (badge) badge.style.display = "none";
-            document.querySelectorAll('.btn-db').forEach(btn => {
-                btn.innerText = btn.innerText.replace(' 🔒', '').trim();
-            });
-            this.cambiaDatabase('magazzino_studio.csv');
-        } else if (chiaveUtente) {
-            alert("❌ Chiave errata. Riprova o contatta l'assistenza.");
-        }
-    },
-
-    async caricaMagazzino() {
-        try {
-            const badge = document.getElementById('pro-badge');
-            if (this.isUnlocked && badge) {
-                badge.style.display = "none";
-            }
-            if (this.isUnlocked) {
-                document.querySelectorAll('.btn-db').forEach(btn => {
-                    if (btn.innerText.includes('🔒')) {
-                        btn.innerText = btn.innerText.replace(' 🔒', '').trim();
+    caricaMagazzino() {
+        fetch(this.currentDB)
+            .then(response => response.text())
+            .then(data => {
+                const lista = document.getElementById('gear-list');
+                if (!lista) return;
+                lista.innerHTML = "";
+                
+                const righe = data.split('\n');
+                righe.forEach(riga => {
+                    const voce = riga.trim();
+                    if (!voce) return;
+                    
+                    if (voce.startsWith('#')) {
+                        const li = document.createElement('li');
+                        li.className = "category-title";
+                        li.innerText = voce.replace('#', '').trim();
+                        lista.appendChild(li);
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = "gear-item";
+                        
+                        const nameSpan = document.createElement('span');
+                        nameSpan.className = "item-text";
+                        nameSpan.innerText = voce;
+                        nameSpan.onclick = () => this.addItem(voce);
+                        li.appendChild(nameSpan);
+                        
+                        const starSpan = document.createElement('span');
+                        starSpan.className = "item-star";
+                        starSpan.innerText = this.favorites.includes(voce) ? "★" : "☆";
+                        if (this.favorites.includes(voce)) starSpan.classList.add('fav');
+                        
+                        starSpan.onclick = (e) => {
+                            e.stopPropagation();
+                            this.toggleFavorite(voce, starSpan);
+                        };
+                        li.appendChild(starSpan);
+                        
+                        nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
+                        nameSpan.ontouchend = function() { setTimeout(() => li.classList.remove('gear-item-active'), 80); };
+                        
+                        if (this.selectedItems.find(item => item.nome === voce)) {
+                            li.classList.add('selected');
+                        }
+                        lista.appendChild(li);
                     }
                 });
-            }
-            const resp = await fetch(this.currentDB);
-            const testo = await resp.text();
-            const righe = testo.split('\n');
-            const lista = document.getElementById('gear-list');
-            if (!lista) return;
-            lista.innerHTML = "";
-            for (let i = 0; i < righe.length; i++) {
-                let voce = righe[i].replace(/"/g, '').trim();
-                let prossima = righe[i + 1] ? righe[i + 1].replace(/"/g, '').trim() : "";
-                if (voce === "" || voce.toLowerCase() === "descrizione") continue;
-                const li = document.createElement('li');
-                if (prossima.toLowerCase() === "descrizione") {
-                    li.className = "category-title";
-                    li.innerText = voce;
-                
-                } else {
-                    li.className = "gear-item";
-                    
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = "item-text";
-                    nameSpan.innerText = voce;
-                    nameSpan.onclick = () => this.addItem(voce);
-                    li.appendChild(nameSpan);
-                    
-                    const starSpan = document.createElement('span');
-                    starSpan.className = "item-star";
-                    starSpan.innerText = this.favorites.includes(voce) ? "★" : "☆";
-                    if (this.favorites.includes(voce)) {
-                        starSpan.classList.add('fav');
-                    }
-                    
-                    starSpan.onclick = (e) => {
-                        e.stopPropagation();
-                        this.toggleFavorite(voce, starSpan);
-                    };
-                    li.appendChild(starSpan);
-                    
-                    nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
-                    nameSpan.ontouchend = function() { setTimeout(() => li.classList.remove('gear-item-active'), 80); };
-                    
-                    if (this.selectedItems.find(item => item.nome === voce)) {
-                        li.classList.add('selected');
-                    }
-                }
-
-                lista.appendChild(li);
-            }
-        } catch (e) {
-            console.error(e);
-            this.showToast("Errore: File non trovato");
-        }
+                this.filterGear();
+            });
     },
 
     addItem(nome) {
@@ -138,66 +98,99 @@ const ui = {
         this.caricaMagazzino();
     },
 
-    changeQta(nome, delta) {
+    toggleFavorite(nome, element) {
+        if (this.favorites.includes(nome)) {
+            this.favorites = this.favorites.filter(f => f !== nome);
+            element.innerText = "☆";
+            element.classList.remove('fav');
+        } else {
+            this.favorites.push(nome);
+            element.innerText = "★";
+            element.classList.add('fav');
+        }
+        localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));
+        this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");
+        this.caricaMagazzino();
+    },
+
+            updateUI() {
+        const countSpan = document.getElementById('count');
+        if (countSpan) countSpan.innerText = this.selectedItems.reduce((acc, curr) => acc + curr.qta, 0);
+        
+        const summary = document.getElementById('added-items-summary');
+        if (!summary) return;
+        
+        if (this.selectedItems.length === 0) {
+            summary.innerHTML = `<div style="text-align:center; color:#666; padding:15px; font-size:13px;">Nessun elemento selezionato</div>`;
+            return;
+        }
+        
+        // .slice().reverse() inverte l'ordine: l'ultimo attrezzo inserito balza in cima!
+        // La scatola esterna ha un'altezza massima fissa (max-height) e scorre dentro (overflow-y)
+        summary.innerHTML = `<div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
+            ${this.selectedItems.slice().reverse().map(item => 
+                `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1a1a1a; padding:8px 12px; border-radius:6px; border:1px solid #222;">
+                    <span style="color:#fff; font-size:13px; font-weight:500;">${item.nome}</span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button onclick="ui.removeItem('${item.nome.replace(/'/g, "\\'")}')" style="background:#222; border:1px solid #333; color:#ff1e00; width:28px; height:28px; border-radius:6px; font-weight:bold; font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer;">-</button>
+                        <span style="font-weight:bold; color:#fff; font-size:14px; min-width:20px; text-align:center;">${item.qta}</span>
+                        <button onclick="ui.addItem('${item.nome.replace(/'/g, "\\'")}')" style="background:#222; border:1px solid #333; color:#00ff66; width:28px; height:28px; border-radius:6px; font-weight:bold; font-size:14px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</button>
+                    </div>
+                 </div>`
+            ).join('')}
+        </div>`;
+    },
+
+            removeItem(nome) {
         const item = this.selectedItems.find(i => i.nome === nome);
-        if (item) {
-            item.qta += delta;
-            if (item.qta <= 0) this.selectedItems = this.selectedItems.filter(i => i.nome !== nome);
+        if (!item) return;
+        
+        item.qta -= 1;
+        if (item.qta <= 0) {
+            this.selectedItems = this.selectedItems.filter(i => i.nome !== nome);
+            this.showToast("Rimosso: " + nome);
+        } else {
+            this.showToast("Ridotto: " + nome + " (x" + item.qta + ")");
         }
         this.updateUI();
         this.caricaMagazzino();
     },
 
-    updateUI() {
-        const summary = document.getElementById('added-items-summary');
-        const count = document.getElementById('count');
-        if (count) count.innerText = this.selectedItems.length;
-        if (this.selectedItems.length === 0) {
-            summary.innerText = "Nessun elemento selezionato";
-            return;
-        }
-        const visualList = [...this.selectedItems].reverse();
-        summary.innerHTML = visualList.map(i => `
-            <div class="summary-tag">
-                ${i.nome} <b>x${i.qta}</b>
-                <span class="btn-qta" onclick="ui.changeQta('${i.nome}', 1)">+</span>
-                <span class="btn-qta" onclick="ui.changeQta('${i.nome}', -1)">-</span>
-            </div>
-        `).join('');
-    },
-
-    async shareList() {
-        if (this.selectedItems.length === 0) {
-            this.showToast("Seleziona almeno un articolo!");
-            return;
-        }
-        const testo = "Lista Attrezzatura REI:\n\n" + this.selectedItems.map(i => `${i.qta}x ${i.nome}`).join('\n');
-        if (navigator.share) {
-            try { await navigator.share({ title: 'Lista REI', text: testo }); }
-            catch (e) { this.fallbackMail(testo); }
-        } else { this.fallbackMail(testo); }
-    },
-
-    fallbackMail(testo) {
-        window.open(`mailto:?subject=Lista Attrezzatura REI&body=${encodeURIComponent(testo)}`);
-    },
-
     clearList() {
-        if (this.selectedItems.length === 0) return;
-        if (confirm("Vuoi cancellare tutta la lista?")) {
-            this.selectedItems = [];
-            this.updateUI();
-            this.caricaMagazzino();
-            this.showToast("Lista svuotata!");
-        }
+        this.selectedItems = [];
+        this.showToast("Elenco svuotato");
+        this.updateUI();
+        this.caricaMagazzino();
     },
 
-        filterGear() {
+    clearSearch() {
+        const searchInput = document.getElementById('searchGear');
+        if (searchInput) searchInput.value = "";
+        const clearBtn = document.querySelector('.clear-search');
+        if (clearBtn) clearBtn.style.display = "none";
+        this.filterGear();
+    },
+
+    toggleStarFilter() {
+        this.isStarFilterActive = !this.isStarFilterActive;
+        const btn = document.getElementById('starFilterBtn');
+        if (btn) {
+            btn.innerText = this.isStarFilterActive ? "★" : "☆";
+            btn.classList.toggle('active', this.isStarFilterActive);
+        }
+        this.filterGear();
+    },
+
+    filterGear() {
         const searchInput = document.getElementById('searchGear');
         const q = searchInput ? searchInput.value.toLowerCase().trim() : "";
-        const starBtn = document.getElementById('starFilterBtn');
-        const masterStellaAttiva = starBtn ? starBtn.classList.contains('active') : false;
+        const masterStellaAttiva = this.isStarFilterActive;
         
+        const clearBtn = document.querySelector('.clear-search');
+        if (clearBtn && searchInput) {
+            clearBtn.style.display = searchInput.value.length > 0 ? "block" : "none";
+        }
+
         if (q === "" && !masterStellaAttiva) {
             document.querySelectorAll('.gear-item').forEach(item => item.style.display = "flex");
             document.querySelectorAll('.category-title').forEach(c => c.style.display = "block");
@@ -208,18 +201,15 @@ const ui = {
         const nomiMostrati = [];
         
         document.querySelectorAll('.gear-item').forEach(item => {
-            // Estrae solo il testo pulito dallo span interno per la ricerca scritta
             const textSpan = item.querySelector('.item-text');
-            const nomeTesto = textSpan ? textSpan.innerText.trim() : item.innerText.trim();
-            const nomeInMinuscolo = nomeTesto.toLowerCase();
+            if (!textSpan) return;
+            const nomeInMinuscolo = textSpan.innerText.toLowerCase().trim();
             const passaFiltroTesto = q === "" || nomeInMinuscolo.includes(q);
             
-            // Controlla se la stellina di QUESTA riga ha la classe rossa 'fav'
             const starSpan = item.querySelector('.item-star');
             const haStellaRossa = starSpan ? starSpan.classList.contains('fav') : false;
             const passaFiltroStella = !masterStellaAttiva || haStellaRossa;
             
-            // Nasconde o mostra l'elemento solo se supera ENTRAMBI i controlli
             if (passaFiltroTesto && passaFiltroStella) {
                 if (nomiMostrati.includes(nomeInMinuscolo)) {
                     item.style.display = "none";
@@ -233,174 +223,43 @@ const ui = {
         });
     },
 
-                toggleFavorite(nome, element) {
-        // Se l'utente non è PRO e prova a usare le stelle fuori dal magazzino Studio, blocca il tocco
-        if (!this.isUnlocked && this.currentDB !== 'magazzino_studio.csv') {
-            this.showToast("🔒 Passa alla versione PRO per salvare i preferiti in questo database");
+    async shareList() {
+        if (this.selectedItems.length === 0) {
+            this.showToast("L'elenco è vuoto!");
             return;
         }
-        if (this.favorites.includes(nome)) {
-            this.favorites = this.favorites.filter(f => f !== nome);
-            element.innerText = "☆";
-            element.classList.remove('fav');
-        } else {
-            this.favorites.push(nome);
-            element.innerText = "★";
-            element.classList.add('fav');
-        }
-        localStorage.setItem('rei_favorites', JSON.stringify(this.favorites));
-        this.showToast(this.favorites.includes(nome) ? "Stella aggiunta!" : "Stella rimossa");
-        this.filterGear();
-    },
-
-    clearSearch() {
-        document.getElementById('searchGear').value = "";
-        this.filterGear();
-    },
-
-                    toggleStarFilter() {
-        this.isStarFilterActive = !this.isStarFilterActive;
-        const btn = document.getElementById('starFilterBtn');
-        if (btn) {
-            btn.innerText = this.isStarFilterActive ? "★" : "☆";
-            btn.classList.toggle('active', this.isStarFilterActive);
-        }
         
-        // SE ATTIVI LA STELLA MASTER: Ignora i magazzini e crea la schermata unica globale
-        if (this.isStarFilterActive) {
-            const lista = document.getElementById('gear-list');
-            if (!lista) return;
-            
-            // Svuota lo schermo e nasconde i titoli delle categorie vecchie
-            lista.innerHTML = "";
-            document.querySelectorAll('.category-title').forEach(c => c.style.display = "none");
-            
-            if (this.favorites.length === 0) {
-                lista.innerHTML = "<li style='text-align:center; padding:20px; color:#666;'>Nessun preferito salvato</li>";
-                return;
+        // INTESTAZIONE PULITA RICHIESTA: "LISTA: nome_lavoro" SENZA LA PAROLA ATTREZZATURA
+        const nomeLavoro = localStorage.getItem('rei_job_name') || "";
+        let testo = nomeLavoro !== "" ? `📋 LISTA: ${nomeLavoro}\n\n` : "📋 LISTA:\n\n";
+        
+        this.selectedItems.forEach(item => {
+            testo += `• ${item.nome} (x${item.qta})\n`;
+        });
+        
+        // CODICE COMPATIBILE AL 100% CON IL SITEMA NATIVO CONDIVISIONE APPLE
+        if (navigator.share) {
+            try { 
+                await navigator.share({ 
+                    title: nomeLavoro !== "" ? `Lista ${nomeLavoro}` : 'Lista Noleggio', 
+                    text: testo 
+                }); 
             }
-            
-            // Prende i preferiti salvati in memoria e li reinstalla tutti insieme a schermo
-            this.favorites.forEach(voce => {
-                const li = document.createElement('li');
-                li.className = "gear-item";
-                
-                const n = document.createElement('span');
-                n.className = "item-text";
-                n.innerText = voce;
-                n.onclick = () => this.addItem(voce);
-                li.appendChild(n);
-                
-                const s = document.createElement('span');
-                s.className = "item-star fav";
-                s.innerText = "★";
-                s.onclick = (e) => {
-                    e.stopPropagation();
-                    this.toggleFavorite(voce, s);
-                };
-                li.appendChild(s);
-                
-                n.ontouchstart = function() { li.classList.add('gear-item-active'); };
-                n.ontouchend = function() { setTimeout(() => li.classList.remove('gear-item-active'), 80); };
-                
-                if (this.selectedItems.find(item => item.nome === voce)) {
-                    li.classList.add('selected');
-                }
-                lista.appendChild(li);
-            });
-        } else {
-            // SE DISATTIVI LA STELLA MASTER: Ricarica subito il magazzino in cui ti trovavi
-            this.caricaMagazzino();
-        }
+            catch (e) { this.fallbackMail(testo); }
+        } else { this.fallbackMail(testo); }
     },
+
+    fallbackMail(testo) {
+        window.open(`mailto:?subject=Lista Attrezzatura REI&body=${encodeURIComponent(testo)}`);
+    },
+
 
     showToast(msg) {
-        const t = document.getElementById('toast');
-        if (!t) return;
-        t.innerText = msg; t.classList.remove('hidden'); t.style.opacity = "1";
-        setTimeout(() => {
-            t.style.opacity = "0";
-            setTimeout(() => t.classList.add('hidden'), 200);
-        }, 800);
-    },
-
-    analyzeImage() {
-        const input = document.getElementById('imageInput');
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('image-preview').src = e.target.result;
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 100; canvas.height = 100;
-                    ctx.drawImage(img, 0, 0, 100, 100);
-                    const data = ctx.getImageData(0, 0, 100, 100).data;
-                    let leftLum = 0, rightLum = 0;
-                    for (let i = 0; i < data.length; i += 4) {
-                        const lum = (data[i] + data[i+1] + data[i+2]) / 3;
-                        const x = (i / 4) % 100;
-                        const y = Math.floor((i / 4) / 100);
-                        if (y > 20 && y < 80) { if (x < 50) leftLum += lum; else rightLum += lum; }
-                    }
-                    const total = leftLum + rightLum;
-                    const diff = Math.abs(leftLum - rightLum) / total;
-                    let pos = { nome: "Frontale", x: 0.5, y: 0.85 };
-                    if (diff > 0.03) {
-                        if (leftLum > rightLum) pos = { nome: "45° Laterale SX", x: 0.25, y: 0.75 };
-                        else pos = { nome: "45° Laterale DX", x: 0.75, y: 0.75 };
-                    }
-                    document.getElementById('res-hardness').innerText = "Rilevata";
-                    document.getElementById('res-angle').innerText = pos.nome;
-                    document.getElementById('analysis-results').classList.remove('hidden');
-                    this.drawDiagram(pos);
-                };
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    },
-
-    togglePhotoZoom() {
-        const img = document.getElementById('image-preview');
-        img.classList.toggle('photo-fullscreen');
-        const isFull = img.classList.contains('photo-fullscreen');
-        document.querySelector('.results-box').style.display = isFull ? "none" : "flex";
-        document.getElementById('lightingDiagram').style.display = isFull ? "none" : "block";
-    },
-
-    toggleMirror() {
-        this.isMirrored = !this.isMirrored;
-        this.analyzeImage();
-    },
-
-    drawDiagram(pos) {
-        const canvas = document.getElementById('lightingDiagram');
-        const ctx = canvas.getContext('2d');
-        const [w, h] = [canvas.width, canvas.height];
-        ctx.clearRect(0, 0, w, h);
-        if (!pos) pos = { x: 0.25, y: 0.75 };
-        ctx.save();
-        if (this.isMirrored) { ctx.translate(w, 0); ctx.scale(-1, 1); }
-        const sx = w / 2;
-        const sy = h / 2 - 20;
-        const lx = w * pos.x;
-        const ly = h * (1 - pos.y + 0.5);
-        const angle = Math.atan2(sy - ly, sx - lx);
-        const grad = ctx.createRadialGradient(lx, ly, 0, lx, ly, 160);
-        grad.addColorStop(0, 'rgba(255, 30, 0, 0.5)'); grad.addColorStop(1, 'rgba(255, 30, 0, 0)');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(lx, ly);
-        ctx.lineTo(lx+160*Math.cos(angle-0.4), ly+160*Math.sin(angle-0.4));
-        ctx.lineTo(lx+160*Math.cos(angle+0.4), ly+160*Math.sin(angle+0.4));
-        ctx.fill();
-        ctx.fillStyle = "white";
-        ctx.beginPath(); ctx.ellipse(sx, sy - 5, 18, 8, 0, 0, 7); ctx.fill();
-        ctx.beginPath(); ctx.arc(sx, sy + 5, 10, 0, 7); ctx.fill();
-        ctx.save(); ctx.translate(lx, ly); ctx.rotate(angle);
-        ctx.fillStyle = "#ff1e00"; ctx.fillRect(-12, -8, 24, 16);
-        ctx.strokeStyle = "#ff1e00"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(12, 0, 15, -1.5, 1.5); ctx.stroke();
-        ctx.restore(); ctx.restore();
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.innerText = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 2000);
     }
 };
 
@@ -408,6 +267,7 @@ window.onload = () => {
     ui.showSection('dashboard');
     const title = document.getElementById('app-title');
     if (title) {
-        title.innerText = ui.isUnlocked ? "REI PRO" : "REI LITE";
+        title.innerText = "LITE";
+        title.style.color = "#ff1e00";
     }
 };
