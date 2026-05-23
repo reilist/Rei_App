@@ -249,8 +249,10 @@ const ui = {
         } else { this.fallbackMail(testo); }
     },
 
-    fallbackMail(testo) {
-        window.open(`mailto:?subject=Lista Attrezzatura REI&body=${encodeURIComponent(testo)}`);
+        fallbackMail(testo) {
+        const nomeLavoro = localStorage.getItem('rei_job_name') || "";
+        const oggetto = nomeLavoro !== "" ? `Lista ${nomeLavoro}` : "Lista";
+        window.open(`mailto:?subject=${encodeURIComponent(oggetto)}&body=${encodeURIComponent(testo)}`);
     },
 
 
