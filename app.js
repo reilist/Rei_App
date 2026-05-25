@@ -496,24 +496,22 @@ window.onload = () => {
     }
     ui.mostraImmaginiReference();
 
-    // SBLOCCO: Scarica la libreria ufficiale Supabase con l'indirizzo internet completo
-    const script = document.createElement('script');
-    script.src = "https://jsdelivr.net";
-    script.onload = () => {
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            supabaseClient.auth.getSession().then(({ data }) => {
-                if (data.session) {
-                    ui.isUnlocked = true;
-                    if (title) {
-                        title.innerText = "PRO";
-                        title.style.color = "#ffb700";
-                        title.style.borderColor = "#ffb700";
-                    }
-                    ui.caricaMagazzino();
+    // Inizializzazione pulita usando il file locale supabase.js appena creato
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        supabaseClient.auth.getSession().then(({ data }) => {
+            if (data && data.session) {
+                ui.isUnlocked = true;
+                if (title) {
+                    title.innerText = "PRO";
+                    title.style.color = "#ffb700";
+                    title.style.borderColor = "#ffb700";
                 }
-            });
-        }
-    };
+                ui.caricaMagazzino();
+            }
+        });
+    }
+};
+
     document.head.appendChild(script);
 };
