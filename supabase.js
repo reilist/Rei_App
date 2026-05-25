@@ -90,8 +90,8 @@
         }
     }
 
-    exports.createClient = (url, key) => new SupabaseClient(url, key);
+        exports.createClient = (url, key) => new SupabaseClient(url, key);
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+})); // <-- CORRETTO: SOLO DUE TONDE E DUE GRAFFE CHIDONO IL BLOCCO!
