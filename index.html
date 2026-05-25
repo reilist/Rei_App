@@ -18,16 +18,24 @@
         </div>
         <div class="menu-grid">
             <button class="menu-btn" onclick="ui.showSection('inventory')">📝 CREA LISTA</button>
-            <button class="menu-btn empty-btn" style="border-style: dashed; border-color: #333; color: #444;">➕ PROSSIMO SVILUPPO</button>
+            <button class="menu-btn" onclick="ui.showSection('reference')" style="background: #222; border: 1px solid #333; color: #fff;">🖼️ ARCHIVIO REFERENCE</button>
         </div>
     </section>
 
-    <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
+            <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
     <section id="inventory-section" class="section hidden">
         <div class="sticky-header">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0;">← Indietro</div>
-                <button id="pro-badge" class="btn-pro-badge">⭐ VERSIONE LITE</button>
+            <!-- TESTATA COMPATTA IN ALTO -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px;">
+                <div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0; min-width: 70px;">← Indietro</div>
+                
+                <!-- PULSANTI INCROCIATI ATTIVATI -->
+                <div style="display: flex; background: #111; padding: 3px; border-radius: 8px; border: 1px solid #222;">
+                    <button onclick="ui.navigaA('reference')" style="background: transparent; border: none; color: #666; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;">Reference</button>
+                    <button style="background: #ff1e00; border: none; color: #fff; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Lista</button>
+                </div>
+
+                <button id="pro-badge" class="btn-pro-badge" onclick="ui.showToast('🔒 Registrazione disponibile nella versione finale online')" style="margin: 0; font-size: 11px; padding: 6px 10px;">⭐ PASSA A PRO</button>
             </div>
             
             <div class="db-selector-grid">
@@ -61,17 +69,42 @@
         <div id="toast" class="toast hidden"></div>
     </section>
 
+    <!-- SEZIONE ARCHIVIO REFERENCE -->
+    <section id="reference-section" class="section hidden">
+        <div class="sticky-header" style="position: static; border-bottom: 1px solid #222; padding-bottom: 15px;">
+            <!-- TESTATA COMPATTA SPECULARE -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px;">
+                <div class="back-btn" onclick="ui.showSection('dashboard')" style="margin-bottom: 0; min-width: 70px;">← Indietro</div>
+                
+                <!-- PULSANTI INCROCIATI ATTIVATI -->
+                <div style="display: flex; background: #111; padding: 3px; border-radius: 8px; border: 1px solid #222;">
+                    <button style="background: #ff1e00; border: none; color: #fff; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Reference</button>
+                    <button onclick="ui.navigaA_DaReferenceALista()" style="background: transparent; border: none; color: #666; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;">Lista</button>
+                </div>
+
+                <button class="btn-pro-badge" onclick="ui.showToast('🔒 Registrazione disponibile nella versione finale online')" style="margin: 0; font-size: 11px; padding: 6px 10px;">⭐ PASSA A PRO</button>
+            </div>
+            
+            <h2 style="color: #fff; font-size: 18px; font-weight: bold; margin-bottom: 5px;">Archivio Ispirazioni</h2>
+            <p style="color: #666; font-size: 12px; margin-bottom: 15px;">Carica le foto di riferimento da consultare sul set.</p>
+            
+            <input type="file" id="ref-file-input" accept="image/*" multiple onchange="ui.caricaImmaginiReference(event)" style="display: none;">
+            <button class="menu-btn" onclick="document.getElementById('ref-file-input').click()" style="background: #ff1e00; width: 100%; border: none; padding: 12px; font-weight: bold; color: #fff; font-size: 13px;">➕ CARICA IMMAGINI</button>
+        </div>
+
+        <div id="reference-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px 0;"></div>
+    </section>
+
     <!-- FINESTRA POP-UP IN TRASPARENZA (NOME LISTA) -->
     <div id="job-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
         <div style="background: #111; border: 1px solid #222; width: 100%; max-width: 320px; padding: 25px 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <label style="display: block; font-size: 11px; color: #666; text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 12px;">Titolo della Produzione</label>
-            <input type="text" id="job-name-input" **placeholder=""** style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 10px; font-size: 14px; text-align: center; outline: none; font-weight: bold; margin-bottom: 20px;">
+            <label style="display: block; font-size: 11px; color: #666; text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 12px;">Titolo della Production</label>
+            <input type="text" id="job-name-input" placeholder="" style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 10px; font-size: 14px; text-align: center; outline: none; font-weight: bold; margin-bottom: 20px;">
             <button class="menu-btn" onclick="ui.confermaNomeLavoro()" style="background: #ff1e00; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; border: none; font-size: 14px; cursor: pointer; color: #fff;">INIZIA LISTA 🚀</button>
         </div>
     </div>
 
-    <!-- IL TUO CODICE CON AGGIORNAMENTO ANTI-CACHE TOTALE -->
-    <script src="app.js?v=placeholder_eliminato"></script>
-
+    <!-- UPDATE CACHE PER I BOTTONI ATTIVI -->
+    <script src="app.js?v=bottoni_testata_attivi"></script>
 </body>
 </html>

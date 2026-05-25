@@ -16,7 +16,7 @@ const ui = {
             if (modal) {
                 modal.style.display = "flex";
                 const input = document.getElementById('job-name-input');
-                if (input) input.value = ""; // <-- FORZATURA CAMPO VUOTO
+                if (input) input.value = "";
             }
         }
     },
@@ -38,62 +38,94 @@ const ui = {
         this.caricaMagazzino();
     },
 
-    caricaMagazzino() {
-        fetch(this.currentDB)
-            .then(response => response.text())
-            .then(data => {
-                const lista = document.getElementById('gear-list');
-                if (!lista) return;
-                lista.innerHTML = "";
-                
-                const righe = data.split('\n');
-                righe.forEach(riga => {
-                    const voce = riga.trim();
-                    if (!voce) return;
-                    
-                    if (voce.startsWith('#')) {
-                        const li = document.createElement('li');
-                        li.className = "category-title";
-                        li.innerText = voce.replace('#', '').trim();
-                        lista.appendChild(li);
-                    } else {
-                        const li = document.createElement('li');
-                        li.className = "gear-item";
-                        
-                        const nameSpan = document.createElement('span');
-                        nameSpan.className = "item-text";
-                        nameSpan.innerText = voce;
-                        nameSpan.onclick = () => this.addItem(voce);
-                        li.appendChild(nameSpan);
-                        
-                        const starSpan = document.createElement('span');
-                        starSpan.className = "item-star";
-                        starSpan.innerText = this.favorites.includes(voce) ? "★" : "☆";
-                        if (this.favorites.includes(voce)) starSpan.classList.add('fav');
-                        
-                        starSpan.onclick = (e) => {
-                            e.stopPropagation();
-                            this.toggleFavorite(voce, starSpan);
-                        };
-                        li.appendChild(starSpan);
-                        
-                        nameSpan.ontouchstart = function() { li.classList.add('gear-item-active'); };
-                        nameSpan.ontouchend = function() { setTimeout(() => li.classList.remove('gear-item-active'), 80); };
-                        
-                        if (this.selectedItems.find(item => item.nome === voce)) {
-                            li.classList.add('selected');
-                        }
-                        lista.appendChild(li);
+            async caricaMagazzino() {
+        try {
+            const badge = document.getElementById('pro-badge');
+            if (this.isUnlocked && badge) {
+                badge.style.display = "none";
+            }
+            if (this.isUnlocked) {
+                document.querySelectorAll('.btn-db').forEach(btn => {
+                    if (btn.innerText.includes('🔒')) {
+                        btn.innerText = btn.innerText.replace(' 🔒', '').trim();
                     }
                 });
-                this.filterGear();
-            });
+            }
+            const resp = await fetch(this.currentDB);
+            const testo = await resp.text();
+            const righe = testo.split('\n');
+            const lista = document.getElementById('gear-list');
+            if (!lista) return;
+            lista.innerHTML = "";
+            
+            for (let i = 0; i < righe.length; i++) {
+                let voce = righe[i].replace(/"/g, '').trim();
+                let prossima = righe[i + 1] ? righe[i + 1].replace(/"/g, '').trim() : "";
+                if (voce === "" || voce.toLowerCase() === "descrizione") continue;
+                
+                const li = document.createElement('li');
+                
+                if (prossima.toLowerCase() === "descrizione") {
+                    li.className = "category-title";
+                    li.innerText = voce;
+                } else {
+                    li.className = "gear-item";
+                    
+                    // Involucro di testo per l'attrezzatura sulla sinistra
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = "item-text";
+                    nameSpan.innerText = voce;
+                    nameSpan.onclick = () => this.addItem(voce);
+                    li.appendChild(nameSpan);
+                    
+                    // Stellina dei preferiti sulla destra (incolonnata)
+                    const starSpan = document.createElement('span');
+                    starSpan.className = "item-star";
+                    starSpan.innerText = this.favorites.includes(voce) ? "★" : "☆";
+                    if (this.favorites.includes(voce)) starSpan.classList.add('fav');
+                    
+                    // Al clic la stella cambia colore (rossa via CSS) e salva in memoria
+                    starSpan.onclick = (e) => {
+                        e.stopPropagation(); // Blocca l'aggiunta dell'attrezzo alla lista quando metti la stella
+                        this.toggleFavorite(voce, starSpan);
+                    };
+                    li.appendChild(starSpan);
+                    
+                    nameSpan.ontouchstart = function() { li.parentNode.classList.add('gear-item-active'); };
+                    nameSpan.ontouchend = function() { setTimeout(() => li.parentNode.classList.remove('gear-item-active'), 80); };
+                    
+                    if (this.selectedItems.find(item => item.nome === voce)) {
+                        li.classList.add('selected');
+                    }
+                }
+                lista.appendChild(li);
+            }
+            this.filterGear();
+        } catch (e) {
+            console.error(e);
+            this.showToast("Errore: File non trovato");
+        }
     },
 
     addItem(nome) {
         const item = this.selectedItems.find(i => i.nome === nome);
         if (item) { item.qta += 1; } else { this.selectedItems.push({ nome: nome, qta: 1 }); }
         this.showToast("Aggiunto: " + nome + " (x" + (item ? item.qta : 1) + ")");
+        this.updateUI();
+        this.caricaMagazzino();
+    },
+
+    removeItem(nome) {
+        const item = this.selectedItems.find(i => i.nome === nome);
+        if (!item) return;
+        
+        item.qta -= 1;
+        if (item.qta <= 0) {
+            this.selectedItems = this.selectedItems.filter(i => i.nome !== nome);
+            this.showToast("Rimosso: " + nome);
+        } else {
+            this.showToast("Ridotto: " + nome + " (x" + item.qta + ")");
+        }
         this.updateUI();
         this.caricaMagazzino();
     },
@@ -113,7 +145,7 @@ const ui = {
         this.caricaMagazzino();
     },
 
-            updateUI() {
+    updateUI() {
         const countSpan = document.getElementById('count');
         if (countSpan) countSpan.innerText = this.selectedItems.reduce((acc, curr) => acc + curr.qta, 0);
         
@@ -125,35 +157,25 @@ const ui = {
             return;
         }
         
-        // .slice().reverse() inverte l'ordine: l'ultimo attrezzo inserito balza in cima!
-        // La scatola esterna ha un'altezza massima fissa (max-height) e scorre dentro (overflow-y)
-        summary.innerHTML = `<div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
-            ${this.selectedItems.slice().reverse().map(item => 
-                `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1a1a1a; padding:8px 12px; border-radius:6px; border:1px solid #222;">
+        const elencoInvertitoHtml = this.selectedItems.slice().reverse().map(item => {
+            const nomePulito = item.nome.replace(/'/g, "\\'");
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1a1a1a; padding:8px 12px; border-radius:6px; border:1px solid #222;">
                     <span style="color:#fff; font-size:13px; font-weight:500;">${item.nome}</span>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <button onclick="ui.removeItem('${item.nome.replace(/'/g, "\\'")}')" style="background:#222; border:1px solid #333; color:#ff1e00; width:28px; height:28px; border-radius:6px; font-weight:bold; font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer;">-</button>
+                        <button onclick="ui.removeItem('${nomePulito}')" style="background:#222; border:1px solid #333; color:#ff1e00; width:28px; height:28px; border-radius:6px; font-weight:bold; font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer;">-</button>
                         <span style="font-weight:bold; color:#fff; font-size:14px; min-width:20px; text-align:center;">${item.qta}</span>
-                        <button onclick="ui.addItem('${item.nome.replace(/'/g, "\\'")}')" style="background:#222; border:1px solid #333; color:#00ff66; width:28px; height:28px; border-radius:6px; font-weight:bold; font-size:14px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</button>
+                        <button onclick="ui.addItem('${nomePulito}')" style="background:#222; border:1px solid #333; color:#00ff66; width:28px; height:28px; border-radius:6px; font-weight:bold; font-size:14px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</button>
                     </div>
-                 </div>`
-            ).join('')}
-        </div>`;
-    },
+                </div>
+            `;
+        }).join('');
 
-            removeItem(nome) {
-        const item = this.selectedItems.find(i => i.nome === nome);
-        if (!item) return;
-        
-        item.qta -= 1;
-        if (item.qta <= 0) {
-            this.selectedItems = this.selectedItems.filter(i => i.nome !== nome);
-            this.showToast("Rimosso: " + nome);
-        } else {
-            this.showToast("Ridotto: " + nome + " (x" + item.qta + ")");
-        }
-        this.updateUI();
-        this.caricaMagazzino();
+        summary.innerHTML = `
+            <div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
+                ${elencoInvertitoHtml}
+            </div>
+        `;
     },
 
     clearList() {
@@ -228,16 +250,13 @@ const ui = {
             this.showToast("L'elenco è vuoto!");
             return;
         }
-        
-        // INTESTAZIONE PULITA RICHIESTA: "LISTA: nome_lavoro" SENZA LA PAROLA ATTREZZATURA
         const nomeLavoro = localStorage.getItem('rei_job_name') || "";
         let testo = nomeLavoro !== "" ? `📋 LISTA: ${nomeLavoro}\n\n` : "📋 LISTA:\n\n";
         
         this.selectedItems.forEach(item => {
-            testo += `• ${item.nome} (x${item.qta})\n`;
+            testo += ` ${item.qta}X: ${item.nome}\n`;
         });
         
-        // CODICE COMPATIBILE AL 100% CON IL SITEMA NATIVO CONDIVISIONE APPLE
         if (navigator.share) {
             try { 
                 await navigator.share({ 
@@ -245,23 +264,121 @@ const ui = {
                     text: testo 
                 }); 
             }
-            catch (e) { this.fallbackMail(testo); }
-        } else { this.fallbackMail(testo); }
+            catch (e) { 
+                this.fallbackMail(testo, nomeLavoro); 
+            }
+        } else { 
+            this.fallbackMail(testo, nomeLavoro); 
+        }
     },
 
-        fallbackMail(testo) {
-        const nomeLavoro = localStorage.getItem('rei_job_name') || "";
+    fallbackMail(testo, nomeLavoro) {
         const oggetto = nomeLavoro !== "" ? `Lista ${nomeLavoro}` : "Lista";
         window.open(`mailto:?subject=${encodeURIComponent(oggetto)}&body=${encodeURIComponent(testo)}`);
     },
 
+    caricaImmaginiReference(event) {
+        const files = event.target.files;
+        if (!files) return;
 
-    showToast(msg) {
+        let immaginiSalvate = JSON.parse(localStorage.getItem('rei_ref_images')) || [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const base64Image = e.target.result;
+                immaginiSalvate.push(base64Image);
+                localStorage.setItem('rei_ref_images', JSON.stringify(immaginiSalvate));
+                this.mostraImmaginiReference();
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+
+    mostraImmaginiReference() {
+        const grid = document.getElementById('reference-grid');
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        const immaginiSalvate = JSON.parse(localStorage.getItem('rei_ref_images')) || [];
+
+        if (immaginiSalvate.length === 0) {
+            grid.innerHTML = `<div style="grid-column: span 2; text-align:center; color:#666; padding:30px; font-size:13px;">Nessuna immagine caricata.</div>`;
+            return;
+        }
+
+        immaginiSalvate.forEach((imgSrc, index) => {
+            const container = document.createElement('div');
+            container.style.position = "relative";
+            container.style.borderRadius = "10px";
+            container.style.overflow = "hidden";
+            container.style.aspectRatio = "1/1";
+            container.style.border = "1px solid #222";
+            container.style.background = "#000";
+
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
+            container.appendChild(img);
+
+            const deleteBtn = document.createElement('div');
+            deleteBtn.innerText = "×";
+            deleteBtn.style.cssText = "position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.7); color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; cursor:pointer;";
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.eliminaImmagineReference(index);
+            };
+            container.appendChild(deleteBtn);
+            grid.appendChild(container);
+        });
+    },
+
+    eliminaImmagineReference(index) {
+        let immaginiSalvate = JSON.parse(localStorage.getItem('rei_ref_images')) || [];
+        immaginiSalvate.splice(index, 1);
+        localStorage.setItem('rei_ref_images', JSON.stringify(immaginiSalvate));
+        this.mostraImmaginiReference();
+        this.showToast("Immagine rimossa");
+    },
+
+        showToast(msg) {
         const toast = document.getElementById('toast');
         if (!toast) return;
         toast.innerText = msg;
         toast.classList.remove('hidden');
         setTimeout(() => toast.classList.add('hidden'), 2000);
+    },
+
+navigaA(id) {
+// Nasconde tutte le sezioni visibili
+document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+
+// Mostra solo la sezione richiesta (senza toccare o cancellare i dati)
+const target = document.getElementById(id + '-section');
+if (target) target.classList.remove('hidden');
+},
+
+    navigaA_DaReferenceALista() {
+        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+        
+        const target = document.getElementById('inventory-section');
+        if (target) target.classList.remove('hidden');
+        
+        this.caricaMagazzino();
+        
+        const nomeSalvato = localStorage.getItem('rei_job_name') || "";
+        if (nomeSalvato === "") {
+            const modal = document.getElementById('job-modal');
+            if (modal) {
+                modal.style.display = "flex";
+                const input = document.getElementById('job-name-input');
+                if (input) input.value = "";
+            }
+        }
     }
 };
 
@@ -272,4 +389,5 @@ window.onload = () => {
         title.innerText = "LITE";
         title.style.color = "#ff1e00";
     }
+    ui.mostraImmaginiReference();
 };
