@@ -68,7 +68,7 @@ const ui = {
                     }
                 });
             }
-            const resp = await fetch(this.currentDB);
+            const resp = await fetch(`./${this.currentDB}`);
             const testo = await resp.text();
             const righe = testo.split('\n');
             const lista = document.getElementById('gear-list');
