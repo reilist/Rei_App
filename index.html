@@ -31,8 +31,9 @@
                 <input type="password" id="auth-password" placeholder="inserisci la tua password..." style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; outline: none;">
             </div>
             
-            <button class="menu-btn" onclick="ui.showToast('Accesso in corso...')" style="background: #ff1e00; text-align: center; padding: 15px; margin-top: 10px; border: none; width: 100%; color: #fff;">🔑 ACCEDI</button>
-            <button class="btn-clear" onclick="ui.showToast('Registrazione in corso...')" style="width: 100%; padding: 10px; border-color: #333; color: #aaa;">📝 REGISTRATI ORA</button>
+                        <button class="menu-btn" onclick="ui.handleLogin()" style="background: #ff1e00; text-align: center; padding: 15px; margin-top: 10px; border: none; width: 100%; color: #fff;">🔑 ACCEDI</button>
+            <button class="btn-clear" onclick="ui.handleRegister()" style="width: 100%; padding: 10px; border-color: #333; color: #aaa;">📝 REGISTRATI ORA</button>
+
         </div>
     </section>
 
@@ -134,6 +135,6 @@
     </div>
 
     <!-- UPDATE CACHE PER I BOTTONI ATTIVI -->
-    <script src="app.js?v=sblocco_pro_definitivo"></script>
+    <script src="app.js?v=collegamento_supabase_pulsanti_ok"></script>
 </body>
 </html>
