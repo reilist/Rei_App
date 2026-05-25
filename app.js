@@ -6,10 +6,16 @@ const ui = {
     isStarFilterActive: false,
 
     showSection(id) {
+        // Nasconde tutte le sezioni
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-        const target = document.getElementById(id + '-section');
-        if (target) target.classList.remove('hidden');
         
+        // Trova e mostra la sezione richiesta
+        const target = document.getElementById(id + '-section');
+        if (target) {
+            target.classList.remove('hidden');
+        }
+        
+        // Se si entra nel magazzino, attiva i controlli standard
         if (id === 'inventory') {
             this.caricaMagazzino();
             const modal = document.getElementById('job-modal');
@@ -20,7 +26,7 @@ const ui = {
             }
         }
     },
-
+    
     confermaNomeLavoro() {
         const input = document.getElementById('job-name-input');
         const nomeLavoro = input ? input.value.trim() : "";
@@ -366,6 +372,11 @@ document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
 // Mostra solo la sezione richiesta (senza toccare o cancellare i dati)
 const target = document.getElementById(id + '-section');
 if (target) target.classList.remove('hidden');
+},
+
+proponiSblocco() {
+// Mostra all'istante la schermata di login che abbiamo inserito nell'HTML
+this.showSection('auth');
 },
 
     navigaA_DaReferenceALista() {

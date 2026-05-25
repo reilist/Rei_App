@@ -9,6 +9,34 @@
 </head>
 <body>
 
+       <!-- SCHERMATA DI AUTENTICAZIONE (LOGIN / REGISTRAZIONE) -->
+    <section id="auth-section" class="section hidden">
+        <div class="sticky-header" style="position: static; border-bottom: none; padding: 10px 0;">
+            <div class="back-btn" onclick="ui.navigaA('inventory')">← Annulla e torna a Crea Lista</div>
+        </div>
+        
+        <div class="logo-container" style="margin: 20px 0;">
+            <img src="logo.png" alt="REI Logo" class="main-logo">
+            <h1 style="color: #ffffff; font-size: 18px; margin-top: 10px; font-weight: bold; letter-spacing: 1px;">ACCESSO CLIENTI</h1>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 15px; background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
+            <div>
+                <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: bold;">Email</label>
+                <input type="email" id="auth-email" placeholder="inserisci la tua email..." style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; outline: none;">
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: bold;">Password</label>
+                <input type="password" id="auth-password" placeholder="inserisci la tua password..." style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; outline: none;">
+            </div>
+            
+            <button class="menu-btn" onclick="ui.showToast('Accesso in corso...')" style="background: #ff1e00; text-align: center; padding: 15px; margin-top: 10px; border: none; width: 100%; color: #fff;">🔑 ACCEDI</button>
+            <button class="btn-clear" onclick="ui.showToast('Registrazione in corso...')" style="width: 100%; padding: 10px; border-color: #333; color: #aaa;">📝 REGISTRATI ORA</button>
+        </div>
+    </section>
+
+
     <!-- SEZIONE DASHBOARD (HOME) -->
     <section id="dashboard-section" class="section">
         <div class="logo-container" style="text-align: center; margin: 40px 0; display: flex; flex-direction: column; align-items: center; gap: 4px;">
@@ -22,7 +50,7 @@
         </div>
     </section>
 
-            <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
+      <!-- SEZIONE MAGAZZINO (CREA LISTA) -->
     <section id="inventory-section" class="section hidden">
         <div class="sticky-header">
             <!-- TESTATA COMPATTA IN ALTO -->
@@ -35,15 +63,16 @@
                     <button style="background: #ff1e00; border: none; color: #fff; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Lista</button>
                 </div>
 
-                <button id="pro-badge" class="btn-pro-badge" onclick="ui.showToast('🔒 Registrazione disponibile nella versione finale online')" style="margin: 0; font-size: 11px; padding: 6px 10px;">⭐ PASSA A PRO</button>
+                <button id="pro-badge" class="btn-pro-badge" onclick="ui.proponiSblocco()" style="margin: 0; font-size: 11px; padding: 6px 10px;">⭐ PASSA A PRO</button>
             </div>
             
+            <!-- GRIGLIA UNIFORMATA DEI DATABASE -->
             <div class="db-selector-grid">
                 <button class="btn-db active" onclick="ui.cambiaDatabase('magazzino_studio.csv')">🏠 STUDIO</button>
-                <button class="btn-db" onclick="ui.showToast('🔒 PASSA PRO')">📍 LOCATION 🔒</button>
-                <button class="btn-db" onclick="ui.showToast('🔒 PASSA PRO')">💻 DIGITAL 🔒</button>
-                <button class="btn-db" onclick="ui.showToast('🔒 PASSA PRO')">📦 PRODUZ 🔒</button>
-                <button class="btn-db" onclick="ui.showToast('🔒 PASSA PRO')">🔋 TUTTO 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_location.csv')">📍 LOCATION 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_digitale.csv')">💻 DIGITAL 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_produzione.csv')">📦 PRODUZ 🔒</button>
+                <button class="btn-db" onclick="ui.cambiaDatabase('magazzino_completo.csv')">🔋 TUTTO 🔒</button>
             </div>
 
             <div class="search-container">
@@ -105,6 +134,6 @@
     </div>
 
     <!-- UPDATE CACHE PER I BOTTONI ATTIVI -->
-    <script src="app.js?v=bottoni_testata_attivi"></script>
+    <script src="app.js?v=tasto_annulla_diretto_ok"></script>
 </body>
 </html>
