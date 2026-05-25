@@ -512,6 +512,3 @@ window.onload = () => {
         });
     }
 };
-
-    document.head.appendChild(script);
-};
