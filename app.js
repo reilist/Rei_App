@@ -1,3 +1,8 @@
+// --- CONFIGURAZIONE CHIAVI DI ACCESSO SUPABASE ---
+const SUPABASE_URL = "https://jmelxmgxmmaiqcovbvmu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kMyZYDEYOYZEgSgaiciCuw_C3XjLCDd";
+let supabaseClient = null;
+
 const ui = {
     currentDB: 'magazzino_studio.csv',
     selectedItems: [],
@@ -374,10 +379,10 @@ const target = document.getElementById(id + '-section');
 if (target) target.classList.remove('hidden');
 },
 
-proponiSblocco() {
-// Mostra all'istante la schermata di login che abbiamo inserito nell'HTML
-this.showSection('auth');
-},
+    proponiSblocco() {
+        // Mostra all'istante la schermata di login che abbiamo inserito nell'HTML
+        this.showSection('auth');
+    },
 
     navigaA_DaReferenceALista() {
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
@@ -396,6 +401,89 @@ this.showSection('auth');
                 if (input) input.value = "";
             }
         }
+    },
+
+    async handleRegister() {
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        if (!emailInput || !passwordInput) return;
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (email === "" || password === "") {
+            this.showToast("Inserisci email e password");
+            return;
+        }
+
+        this.showToast("Registrazione...");
+
+        if (!supabaseClient) {
+            this.showToast("Servizio cloud non pronto, riprova");
+            return;
+        }
+
+        try {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                this.showToast("Errore: " + error.message);
+            } else {
+                this.showToast("Account creato! Accedi ora");
+            }
+        } catch (e) {
+            this.showToast("Errore di connessione");
+        }
+    },
+
+    async handleLogin() {
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        if (!emailInput || !passwordInput) return;
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (email === "" || password === "") {
+            this.showToast("Inserisci email e password");
+            return;
+        }
+
+        this.showToast("Verifica in corso...");
+
+        if (!supabaseClient) {
+            this.showToast("Servizio cloud non pronto, riprova");
+            return;
+        }
+
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                this.showToast("Credenziali errate");
+            } else {
+                this.showToast("Sblocco PRO Attivo! 🚀");
+                this.isUnlocked = true;
+                
+                const title = document.getElementById('app-title');
+                if (title) {
+                    title.innerText = "PRO";
+                    title.style.color = "#ffb700";
+                    title.style.borderColor = "#ffb700";
+                }
+
+                this.caricaMagazzino();
+                setTimeout(() => this.showSection('inventory'), 1000);
+            }
+        } catch (e) {
+            this.showToast("Errore di connessione");
+        }
     }
 };
 
@@ -407,4 +495,25 @@ window.onload = () => {
         title.style.color = "#ff1e00";
     }
     ui.mostraImmaginiReference();
+
+    // SBLOCCO: Scarica la libreria ufficiale Supabase con l'indirizzo internet completo
+    const script = document.createElement('script');
+    script.src = "https://jsdelivr.net";
+    script.onload = () => {
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            supabaseClient.auth.getSession().then(({ data }) => {
+                if (data.session) {
+                    ui.isUnlocked = true;
+                    if (title) {
+                        title.innerText = "PRO";
+                        title.style.color = "#ffb700";
+                        title.style.borderColor = "#ffb700";
+                    }
+                    ui.caricaMagazzino();
+                }
+            });
+        }
+    };
+    document.head.appendChild(script);
 };
