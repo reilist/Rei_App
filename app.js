@@ -29,7 +29,13 @@ const ui = {
         if (modal) modal.style.display = "none";
     },
 
-    cambiaDatabase(nomeFile) {
+        cambiaDatabase(nomeFile) {
+        // Se il magazzino non è quello studio e l'app è LITE, blocca l'accesso
+        if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
+            this.showToast("PASSA PRO");
+            return;
+        }
+
         this.currentDB = nomeFile;
         document.querySelectorAll('.btn-db').forEach(btn => {
             if (btn.getAttribute('onclick').includes(nomeFile)) btn.classList.add('active');
