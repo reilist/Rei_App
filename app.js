@@ -403,7 +403,7 @@ if (target) target.classList.remove('hidden');
         }
     },
 
-    async handleRegister() {
+            async handleRegister() {
         const emailInput = document.getElementById('auth-email');
         const passwordInput = document.getElementById('auth-password');
         if (!emailInput || !passwordInput) return;
@@ -416,10 +416,11 @@ if (target) target.classList.remove('hidden');
             return;
         }
 
-        this.showToast("Registrazione...");
+        // MESSAGGIO RICHIESTO: Avvisa subito l'utente a schermo
+        this.showToast("Controlla la mail per confermare");
 
         if (!supabaseClient) {
-            this.showToast("Servizio cloud non pronto, riprova");
+            console.error("Database non inizializzato");
             return;
         }
 
@@ -432,10 +433,12 @@ if (target) target.classList.remove('hidden');
             if (error) {
                 this.showToast("Errore: " + error.message);
             } else {
-                this.showToast("Account creato! Accedi ora");
+                // Svuota i campi per pulizia grafica
+                emailInput.value = "";
+                passwordInput.value = "";
             }
         } catch (e) {
-            this.showToast("Errore di connessione");
+            console.error("Errore invio dati:", e);
         }
     },
 
@@ -452,10 +455,10 @@ if (target) target.classList.remove('hidden');
             return;
         }
 
-        this.showToast("Verifica in corso...");
+        this.showToast("Verifica credenziali...");
 
         if (!supabaseClient) {
-            this.showToast("Servizio cloud non pronto, riprova");
+            this.showToast("Errore di connessione al database");
             return;
         }
 
@@ -466,9 +469,11 @@ if (target) target.classList.remove('hidden');
             });
 
             if (error) {
-                this.showToast("Credenziali errate");
+                // SE LA PASSWORD È SBAGLIATA, BLOCCA TUTTO QUI E DA ERRORE
+                this.showToast("Email o password errate");
             } else {
-                this.showToast("Sblocco PRO Attivo! 🚀");
+                // ENTRA SOLO SE LE CREDENZIALI SONO CORRETTE NEL CLOUD
+                this.showToast("Accesso eseguito! PRO Attivo 🚀");
                 this.isUnlocked = true;
                 
                 const title = document.getElementById('app-title');
@@ -482,12 +487,13 @@ if (target) target.classList.remove('hidden');
                 setTimeout(() => this.showSection('inventory'), 1000);
             }
         } catch (e) {
-            this.showToast("Errore di connessione");
+            this.showToast("Errore di rete");
         }
-    }
+    },
+
 };
 
-window.onload = () => {
+    window.onload = () => {
     ui.showSection('dashboard');
     const title = document.getElementById('app-title');
     if (title) {
@@ -496,7 +502,7 @@ window.onload = () => {
     }
     ui.mostraImmaginiReference();
 
-    // Inizializzazione pulita usando il file locale supabase.js appena creato
+    // Aggancia la libreria ufficiale caricata dall'HTML
     if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         supabaseClient.auth.getSession().then(({ data }) => {
@@ -511,6 +517,4 @@ window.onload = () => {
             }
         });
     }
- };   
-
-
+};
