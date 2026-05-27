@@ -1,6 +1,6 @@
 // --- CONFIGURAZIONE CHIAVI DI ACCESSO SUPABASE ---
 const SUPABASE_URL = "https://jmelxmgxmmaiqcovbvmu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_kMyZYDEYOYZEgSgaiciCuw_C3XjLCDd";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptZWx4bWd4bW1haXFjb3Zidm11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NjkyNTEsImV4cCI6MjA5NTA0NTI1MX0.hT0JadsSHrs2WdwImGYo8B7r9CgYGbo7W0PiRFL5Bg8";
 let supabaseClient = null;
 
 const ui = {
