@@ -502,9 +502,11 @@ if (target) target.classList.remove('hidden');
     }
     ui.mostraImmaginiReference();
 
-    // Aggancia la libreria ufficiale caricata dall'HTML
-    if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Inizializzazione flessibile: cerca la libreria caricata dall'HTML
+    const supaLib = window.supabase || (window.supabaseJS ? window.supabaseJS : null);
+    
+    if (supaLib) {
+        supabaseClient = supaLib.createClient(SUPABASE_URL, SUPABASE_KEY);
         supabaseClient.auth.getSession().then(({ data }) => {
             if (data && data.session) {
                 ui.isUnlocked = true;
@@ -516,5 +518,7 @@ if (target) target.classList.remove('hidden');
                 ui.caricaMagazzino();
             }
         });
+    } else {
+        console.log("Database in attesa di caricamento...");
     }
 };
