@@ -403,7 +403,7 @@ if (target) target.classList.remove('hidden');
         }
     },
 
-            async handleRegister() {
+                async handleRegister() {
         const emailInput = document.getElementById('auth-email');
         const passwordInput = document.getElementById('auth-password');
         if (!emailInput || !passwordInput) return;
@@ -416,11 +416,11 @@ if (target) target.classList.remove('hidden');
             return;
         }
 
-        // MESSAGGIO RICHIESTO: Avvisa subito l'utente a schermo
-        this.showToast("Controlla la mail per confermare");
+        // 1. MESSAGGIO RICHIESTO: Mostra subito l'avviso a schermo
+        this.showToast("Verifica la tua mail");
 
         if (!supabaseClient) {
-            console.error("Database non inizializzato");
+            console.error("Database non pronto");
             return;
         }
 
@@ -433,12 +433,12 @@ if (target) target.classList.remove('hidden');
             if (error) {
                 this.showToast("Errore: " + error.message);
             } else {
-                // Svuota i campi per pulizia grafica
+                // Svuota i campi sul display per pulizia visiva
                 emailInput.value = "";
                 passwordInput.value = "";
             }
         } catch (e) {
-            console.error("Errore invio dati:", e);
+            console.error(e);
         }
     },
 
@@ -502,11 +502,30 @@ if (target) target.classList.remove('hidden');
     }
     ui.mostraImmaginiReference();
 
-    // Inizializzazione flessibile: cerca la libreria caricata dall'HTML
     const supaLib = window.supabase || (window.supabaseJS ? window.supabaseJS : null);
     
     if (supaLib) {
         supabaseClient = supaLib.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // RIPRISTINO: Intercetta il rientro dalla mail di conferma
+        if (window.location.hash.includes("access_token") || window.location.search.includes("code")) {
+            ui.isUnlocked = true;
+            if (title) {
+                title.innerText = "PRO";
+                title.style.color = "#ffb700";
+                title.style.borderColor = "#ffb700";
+            }
+            ui.caricaMagazzino();
+            ui.showToast("Account Verificato! PRO Attivo 🚀");
+            
+            // Pulisce l'indirizzo del browser per non farlo ricaricare all'infinito
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            setTimeout(() => ui.showSection('inventory'), 1200);
+            return;
+        }
+
+        // Controllo automatico standard per i riavvii successivi
         supabaseClient.auth.getSession().then(({ data }) => {
             if (data && data.session) {
                 ui.isUnlocked = true;
