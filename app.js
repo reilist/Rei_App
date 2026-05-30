@@ -403,7 +403,7 @@ if (target) target.classList.remove('hidden');
         }
     },
 
-                async handleRegister() {
+                    async handleRegister() {
         const emailInput = document.getElementById('auth-email');
         const passwordInput = document.getElementById('auth-password');
         if (!emailInput || !passwordInput) return;
@@ -416,8 +416,11 @@ if (target) target.classList.remove('hidden');
             return;
         }
 
-        // 1. MESSAGGIO RICHIESTO: Mostra subito l'avviso a schermo
-        this.showToast("Verifica la tua mail");
+        // APERTURA ISTANTANEA: Mostra subito la finestra centrale richiesta
+        const confirmModal = document.getElementById('confirm-modal');
+        if (confirmModal) {
+            confirmModal.style.display = "flex";
+        }
 
         if (!supabaseClient) {
             console.error("Database non pronto");
@@ -433,7 +436,7 @@ if (target) target.classList.remove('hidden');
             if (error) {
                 this.showToast("Errore: " + error.message);
             } else {
-                // Svuota i campi sul display per pulizia visiva
+                // Svuota i campi visivi sul telefono per sicurezza
                 emailInput.value = "";
                 passwordInput.value = "";
             }
@@ -441,6 +444,7 @@ if (target) target.classList.remove('hidden');
             console.error(e);
         }
     },
+
 
     async handleLogin() {
         const emailInput = document.getElementById('auth-email');
