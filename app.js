@@ -7,7 +7,7 @@ const ui = {
     currentDB: 'magazzino_studio.csv',
     selectedItems: [],
     favorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],
-    isUnlocked: false,
+    isUnlocked: true,
     isStarFilterActive: false,
 
     showSection(id) {
@@ -41,19 +41,15 @@ const ui = {
     },
 
         cambiaDatabase(nomeFile) {
-        // Se il magazzino non è quello studio e l'app è LITE, blocca l'accesso
-        if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
-            this.showToast("PASSA PRO");
-            return;
-        }
+    // Abbiamo tolto il controllo 'if', ora fa entrare sempre:
+    this.currentDB = nomeFile;
+    document.querySelectorAll('.btn-db').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(nomeFile)) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+    this.caricaMagazzino();
+},
 
-        this.currentDB = nomeFile;
-        document.querySelectorAll('.btn-db').forEach(btn => {
-            if (btn.getAttribute('onclick').includes(nomeFile)) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-        this.caricaMagazzino();
-    },
 
             async caricaMagazzino() {
         try {
