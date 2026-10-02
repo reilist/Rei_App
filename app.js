@@ -7,7 +7,7 @@ const ui = {
     currentDB: 'magazzino_studio.csv',
     selectedItems: [],
     favorites: JSON.parse(localStorage.getItem('rei_favorites')) || [],
-    isUnlocked: false,
+    isUnlocked: true,
     isStarFilterActive: false,
 
     showSection(id) {
@@ -40,13 +40,7 @@ const ui = {
         if (modal) modal.style.display = "none";
     },
 
-        cambiaDatabase(nomeFile) {
-        // Se il magazzino non è quello studio e l'app è LITE, blocca l'accesso
-        if (nomeFile !== 'magazzino_studio.csv' && !this.isUnlocked) {
-            this.showToast("PASSA PRO");
-            return;
-        }
-
+            cambiaDatabase(nomeFile) {
         this.currentDB = nomeFile;
         document.querySelectorAll('.btn-db').forEach(btn => {
             if (btn.getAttribute('onclick').includes(nomeFile)) btn.classList.add('active');
@@ -54,6 +48,7 @@ const ui = {
         });
         this.caricaMagazzino();
     },
+
 
             async caricaMagazzino() {
         try {
@@ -314,7 +309,7 @@ const ui = {
         }
     },
 
-        mostraImmaginiReference() {
+    mostraImmaginiReference() {
         const grid = document.getElementById('reference-grid');
         if (!grid) return;
         grid.innerHTML = "";
@@ -340,41 +335,6 @@ const ui = {
             img.style.width = "100%";
             img.style.height = "100%";
             img.style.objectFit = "cover";
-            img.style.cursor = "pointer";
-
-            // --- LO ZOOM INTEGRATO DELLA PRIMA VERSIONE (RIPRISTINATO) ---
-            img.onclick = () => {
-                if (img.classList.contains('fullscreen-active')) {
-                    img.classList.remove('fullscreen-active');
-                    img.style.position = "static";
-                    img.style.width = "100%";
-                    img.style.height = "100%";
-                    img.style.objectFit = "cover";
-                    img.style.zIndex = "1";
-                    img.style.background = "transparent";
-                } else {
-                    // Chiude eventuali altre foto lasciate aperte per errore
-                    document.querySelectorAll('.fullscreen-active').forEach(el => {
-                        el.classList.remove('fullscreen-active');
-                        el.style.position = "static";
-                        el.style.width = "100%";
-                        el.style.height = "100%";
-                        el.style.objectFit = "cover";
-                        el.style.zIndex = "1";
-                        el.style.background = "transparent";
-                    });
-                    // Ingrandisce a tutto schermo nero sopra a ogni cosa
-                    img.classList.add('fullscreen-active');
-                    img.style.position = "fixed";
-                    img.style.top = "0";
-                    img.style.left = "0";
-                    img.style.width = "100vw";
-                    img.style.height = "100vh";
-                    img.style.objectFit = "contain";
-                    img.style.background = "rgba(0,0,0,0.95)";
-                    img.style.zIndex = "99999";
-                }
-            };
             container.appendChild(img);
 
             const deleteBtn = document.createElement('div');
@@ -388,7 +348,6 @@ const ui = {
             grid.appendChild(container);
         });
     },
-
 
     eliminaImmagineReference(index) {
         let immaginiSalvate = JSON.parse(localStorage.getItem('rei_ref_images')) || [];
@@ -439,7 +398,7 @@ if (target) target.classList.remove('hidden');
         }
     },
 
-    async handleRegister() {
+            async handleRegister() {
         const emailInput = document.getElementById('auth-email');
         const passwordInput = document.getElementById('auth-password');
         if (!emailInput || !passwordInput) return;
@@ -452,36 +411,31 @@ if (target) target.classList.remove('hidden');
             return;
         }
 
+        // MESSAGGIO RICHIESTO: Avvisa subito l'utente a schermo
+        this.showToast("Controlla la mail per confermare");
+
         if (!supabaseClient) {
-            this.showToast("Connessione al database non pronta");
+            console.error("Database non inizializzato");
             return;
         }
 
         try {
             const { data, error } = await supabaseClient.auth.signUp({
                 email: email,
-                password: password,
-                options: {
-                    redirectTo: "https://reilist.github.io/rei_app/"
-                }
+                password: password
             });
 
             if (error) {
                 this.showToast("Errore: " + error.message);
             } else {
-                const confirmModal = document.getElementById('confirm-modal');
-                if (confirmModal) {
-                    confirmModal.style.display = "flex";
-                }
+                // Svuota i campi per pulizia grafica
                 emailInput.value = "";
                 passwordInput.value = "";
             }
         } catch (e) {
-            this.showToast("Errore di rete");
-            console.error(e);
+            console.error("Errore invio dati:", e);
         }
     },
-
 
     async handleLogin() {
         const emailInput = document.getElementById('auth-email');
@@ -510,10 +464,12 @@ if (target) target.classList.remove('hidden');
             });
 
             if (error) {
+                // SE LA PASSWORD È SBAGLIATA, BLOCCA TUTTO QUI E DA ERRORE
                 this.showToast("Email o password errate");
             } else {
+                // ENTRA SOLO SE LE CREDENZIALI SONO CORRETTE NEL CLOUD
                 this.showToast("Accesso eseguito! PRO Attivo 🚀");
-                                this.isUnlocked = true;
+                this.isUnlocked = true;
                 
                 const title = document.getElementById('app-title');
                 if (title) {
@@ -521,10 +477,6 @@ if (target) target.classList.remove('hidden');
                     title.style.color = "#ffb700";
                     title.style.borderColor = "#ffb700";
                 }
-
-                // Nasconde il pulsante dorato dopo il login
-                const proBtn = document.getElementById('pro-button') || document.getElementById('passa-pro-btn') || document.querySelector('.btn-pro');
-                if (proBtn) proBtn.style.display = 'none';
 
                 this.caricaMagazzino();
                 setTimeout(() => this.showSection('inventory'), 1000);
@@ -534,43 +486,22 @@ if (target) target.classList.remove('hidden');
         }
     },
 
-
 };
 
-    window.onload = () => {
+        window.onload = () => {
     ui.showSection('dashboard');
     const title = document.getElementById('app-title');
     if (title) {
-        title.innerText = "LITE";
-        title.style.color = "#ff1e00";
+        title.innerText = "PRO";
+        title.style.color = "#ffb700";
+        title.style.borderColor = "#ffb700";
     }
     ui.mostraImmaginiReference();
 
-    // INIZIALIZZAZIONE DIRETTA DALLA LIBRERIA LOCALE SUPABASE.JS
-    if (window.supabase) {
-        // Collega direttamente il client globale ufficiale usato dai pulsanti
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Database connected successfully! 🚀");
-        
-        // --- INTERCETTA IL RIENTRO DALLA MAIL DI CONFERMA ---
-        if (window.location.hash.includes("access_token") || window.location.search.includes("code")) {
-            ui.isUnlocked = true;
-            if (title) {
-                title.innerText = "PRO";
-                title.style.color = "#ffb700";
-                title.style.borderColor = "#ffb700";
-            }
-            const proBtn = document.getElementById('pro-button') || document.getElementById('passa-pro-btn') || document.querySelector('.btn-pro');
-            if (proBtn) {
-                proBtn.style.display = 'none';
-            }
-            ui.caricaMagazzino();
-            window.history.replaceState({}, document.title, window.location.pathname);
-            setTimeout(() => ui.showSection('inventory'), 1200);
-            return;
-        }
 
-        // Controllo standard in background per le sessioni già attive
+    // Aggancia la libreria ufficiale caricata dall'HTML
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         supabaseClient.auth.getSession().then(({ data }) => {
             if (data && data.session) {
                 ui.isUnlocked = true;
@@ -579,14 +510,8 @@ if (target) target.classList.remove('hidden');
                     title.style.color = "#ffb700";
                     title.style.borderColor = "#ffb700";
                 }
-                const proBtn = document.getElementById('pro-button') || document.getElementById('passa-pro-btn') || document.querySelector('.btn-pro');
-                if (proBtn) {
-                    proBtn.style.display = 'none';
-                }
                 ui.caricaMagazzino();
             }
         });
-    } else {
-        console.error("Critical Error: supabase library is completely missing!");
     }
 };
